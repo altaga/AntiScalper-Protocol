@@ -1,18 +1,17 @@
-# AGENT.md — MACHINE DOCUMENTATION (NOT FOR HUMANS)
+# AGENT.md — Asp integration contract
 
-```
-DOC_ROLE:           system_contract_for_LLM_agents
-PRODUCT:            Asp / AntiScalper Protocol
-EVENT:              ETHGlobal Tokyo 2026
-PARTNER_RAILS:      World (Proof of Human), Sui (settlement)
-HUMAN_DOCS:         README.md (pitch), SIMULATOR.md (booth)
-READ_PRIORITY:      this file first if you are an agent integrating or judging code paths
-TRUST_MODEL:        fail-closed; never invent verified=true or paid=true
-```
+Technical reference for **automated buyers / orchestrators** that call Asp over HTTP + MQTT, and for auditors reviewing those paths. Product pitch for people: [`README.md`](./README.md). Booth walkthrough: [`SIMULATOR.md`](./SIMULATOR.md).
+
+| Field | Value |
+|---|---|
+| Product | Asp / AntiScalper Protocol |
+| Event | ETHGlobal Tokyo 2026 |
+| Rails | World (Proof of Human), Sui (settlement) |
+| Trust model | Fail-closed. Never treat client `onSuccess` or a local `paid=true` as authority. |
 
 ---
 
-## 0. INVARIANTS (MUST HOLD)
+## 0. Invariants
 
 1. `client_idkit_onSuccess ≠ authorization`
 2. `payment_received ≠ entitlement`
@@ -22,11 +21,11 @@ TRUST_MODEL:        fail-closed; never invent verified=true or paid=true
 6. Claim World proof `signal` SHOULD equal `petition_id`
 7. Lab Payment Kit intents NEVER dispatch motor (`lab-intent-no-dispense`)
 8. In-memory stores (winners, petitions, intents) RESET on gateway process restart
-9. Do not claim Walrus or Curvegrid in this product surface
+9. Physical dispense is MQTT single-shot; lab Payment Kit paths never arm the motor
 
 ---
 
-## 1. SYSTEM GRAPH
+## 1. System graph
 
 ```mermaid
 flowchart TB
@@ -68,7 +67,7 @@ flowchart TB
 
 ---
 
-## 2. CONSTANTS / IDENTIFIERS
+## 2. Constants / identifiers
 
 | Symbol | Value | Where |
 |---|---|---|
@@ -87,7 +86,7 @@ flowchart TB
 
 ---
 
-## 3. STATE MACHINES
+## 3. State machines
 
 ### 3.1 Petition (`store.js`)
 
@@ -162,7 +161,7 @@ Informal UI phases in `useCheckoutFlow.ts` / `useDemoV1Flow.ts`:
 
 ---
 
-## 4. WORLD RAIL — CONTRACTS
+## 4. World rail — contracts
 
 ### 4.1 Preferred verify topology
 
@@ -328,7 +327,7 @@ OUTPUT:
 
 ---
 
-## 5. SUI RAIL — CONTRACTS
+## 5. Sui rail — contracts
 
 Two parallel payment channels. Do not conflate.
 
@@ -435,7 +434,7 @@ Return shape on fail: `{ ok:false, error, status, detail, claim_already_used? }`
 
 ---
 
-## 6. DISPATCH / HARDWARE
+## 6. Dispatch / hardware
 
 FILE: `asp-gateway/src/services/dispatch/dispatcher.js`
 
@@ -456,7 +455,7 @@ Wiring/README: `asp-devices/README.md`.
 
 ---
 
-## 7. CANONICAL SEQUENCES (COPY THESE)
+## 7. Canonical sequences
 
 ### 7.1 Human Get ticket
 
@@ -509,7 +508,7 @@ Files: useDemoV1Flow.ts, DemoV1Page.tsx
 
 ---
 
-## 8. FILE INDEX (IMPLEMENTATION)
+## 8. File index
 
 ### World / policy
 
@@ -559,7 +558,7 @@ Files: useDemoV1Flow.ts, DemoV1Page.tsx
 
 ---
 
-## 9. ENV CHECKLIST (OPERATOR)
+## 9. Env checklist (operator)
 
 Gateway `.env.example` keys (no secrets in git):
 
@@ -579,19 +578,18 @@ Dapp:
 
 ---
 
-## 10. ANTI-PATTERNS (AGENTS MUST NOT)
+## 10. Integration mistakes that break the product
 
-1. Treat IDKit callback as sufficient authorization
-2. Set `paid=true` without `lookupPaymentRecord` / x402 settle proof
-3. Call `/asp/hire` or kiosk complete while `pending_human`
-4. Retry dispense after `claim-already-used` expecting success
-5. Use lab intent path for physical demo dispense
-6. Log or commit private keys, JWTs, staging tokens
-7. Describe Asp as Walrus-dependent or Curvegrid prize entry in this tree
+1. Treating the IDKit client callback as sufficient authorization
+2. Setting `paid=true` without a `PaymentReceipt` / x402 settle proof
+3. Calling `/asp/hire` or kiosk complete while the petition is `pending_human`
+4. Retrying dispense after `claim-already-used` and expecting success
+5. Using the lab intent path when a physical motor dispense is required
+6. Logging or committing private keys, JWTs, or staging tokens
 
 ---
 
-## 11. MINIMAL SELF-TEST SCRIPT (LOGICAL)
+## 11. Minimal logical self-test
 
 ```
 T1 enroll → ticket T
@@ -608,12 +606,8 @@ T10 hire without authorize → pending-human
 
 ---
 
-## 12. POINTER TO HUMAN ARTIFACTS
+## 12. Related docs
 
-- Pitch / mermaid for judges: `README.md`
-- Booth click-path: `SIMULATOR.md`
-- This file: **authoritative machine contract**
-
-```
-END_OF_AGENT_CONTRACT
-```
+- Product pitch / diagrams: `README.md`
+- Booth walkthrough: `SIMULATOR.md`
+- This file: HTTP/MQTT integration contract for automated clients and auditors

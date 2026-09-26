@@ -482,7 +482,7 @@ npm install && npm start
 ```
 
 Env templates: [`asp-dapp/.env.example`](asp-dapp/.env.example) (if present), [`asp-gateway/.env.example`](asp-gateway/.env.example).  
-Agents / schemas: [`AGENT.md`](./AGENT.md). Booth steps: [`SIMULATOR.md`](./SIMULATOR.md).
+Agents integrating over HTTP: [`AGENT.md`](./AGENT.md). Booth steps: [`SIMULATOR.md`](./SIMULATOR.md).
 
 ---
 

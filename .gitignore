@@ -156,8 +156,7 @@ creds.h
 CLAUDE.md
 debug-*.md
 
-# Local archive â€” **ENTIRE `old/` is gitignored** (never commit).
-# Holds the moved prior package tree + local dumps. Do not put images/ here.
+# Local-only archive (never commit). Do not put images/ here.
 old/
 
 # Local source-of-truth docs (research, World notes, user rules â€” never commit).

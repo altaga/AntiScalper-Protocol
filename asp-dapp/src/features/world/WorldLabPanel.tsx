@@ -23,7 +23,7 @@ export function WorldLabPanel() {
   }, []);
 
   const onVerified = useCallback(async (proof: unknown) => {
-    setLog('Got IDKit proof. Posting to /api/world/verify-proof (Mandate shape)…');
+    setLog('Got IDKit proof. Posting to /api/world/verify-proof…');
     const res = await fetch('/api/world/verify-proof', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

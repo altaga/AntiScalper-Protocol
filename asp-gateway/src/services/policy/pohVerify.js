@@ -31,7 +31,7 @@ function extractSessionId(idkitResponse) {
 export async function verifyWorldProof(idkitResponse, { expectedEnvironment, action, signal } = {}) {
   const rpId = (process.env.WORLD_RP_ID || process.env.EXPO_PUBLIC_WORLD_RP_ID || '').trim();
   const appId = (process.env.WORLD_APP_ID || process.env.EXPO_PUBLIC_WORLD_APP_ID || '').trim();
-  // Official IDKit guide uses {rp_id}; Mandate historically used {app_id}. Try both.
+  // Official IDKit guide uses {rp_id}; some RPs verify with {app_id}. Try both.
   const verifyIds = [];
   if (rpId && rpId.startsWith('rp_')) verifyIds.push(rpId);
   if (appId && appId.startsWith('app_')) verifyIds.push(appId);

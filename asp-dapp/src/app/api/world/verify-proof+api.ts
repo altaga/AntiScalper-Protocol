@@ -1,6 +1,5 @@
 ﻿/**
- * Isolated World proof verify for the Lab tab.
- * Pattern mirrored from Mandate `app/src/app/api/verify+api.js` (working Selfie path).
+ * Isolated World proof verify for the Lab tab (Selfie / uniqueness path).
  */
 export async function POST(request: Request): Promise<Response> {
   try {
@@ -13,7 +12,7 @@ export async function POST(request: Request): Promise<Response> {
       return Response.json({ ok: false, error: 'missing-proof' }, { status: 400 });
     }
 
-    // Mandate: verify against app_id (WORLD_APP_ID), not rp_id.
+    // Verify against app_id (WORLD_APP_ID), not rp_id.
     const appId = (
       process.env.WORLD_APP_ID ||
       process.env.EXPO_PUBLIC_WORLD_APP_ID ||
@@ -28,7 +27,7 @@ export async function POST(request: Request): Promise<Response> {
       );
     }
 
-    // Mandate headers — bare Node fetch without User-Agent gets HTML 403 from World edge.
+    // Bare Node fetch without User-Agent gets HTML 403 from World edge.
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
       'User-Agent': 'Asp-World-Lab/1.0',
@@ -87,7 +86,7 @@ export async function POST(request: Request): Promise<Response> {
       );
     }
 
-    // Mandate success gate: HTTP ok AND success flag.
+    // Success gate: HTTP ok AND success flag.
     if (!(response.ok && raw?.success)) {
       return Response.json(
         {

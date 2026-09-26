@@ -1,4 +1,3 @@
-// Mandate uses `@worldcoin/idkit/signing` (re-export) — keep the same entrypoint.
 import { signRequest } from '@worldcoin/idkit/signing';
 
 /**

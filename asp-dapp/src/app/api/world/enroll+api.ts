@@ -23,7 +23,7 @@ export async function POST(request: Request): Promise<Response> {
 
     const rpId = (process.env.WORLD_RP_ID || process.env.EXPO_PUBLIC_WORLD_RP_ID || '').trim();
     const appId = (process.env.WORLD_APP_ID || process.env.EXPO_PUBLIC_WORLD_APP_ID || '').trim();
-    // Mandate historically verified against app_id; try both.
+    // World verify accepts app_id or rp_id depending on RP setup — try both.
     const verifyIds = [appId, rpId].filter(
       (id) => id && (id.startsWith('rp_') || id.startsWith('app_'))
     );

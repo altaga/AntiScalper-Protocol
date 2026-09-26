@@ -5,7 +5,6 @@ export function describeConfig(log) {
   const description = {
     suiAddress:  settings.sui.address || '(no GATEWAY_PRIVATE_KEY set)',
     suiRpc:      settings.sui.rpcUrl,
-    walrus:      settings.walrus.publisherUrl,
     mqttBroker:  settings.mqtt.brokerUrl,
     mqttUser:    g.id,
     httpHost:    settings.http.host,

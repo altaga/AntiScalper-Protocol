@@ -28,7 +28,7 @@ Without those checks, “pay → dispense” is just a faster scalper.
 
 ## Why these sponsors are load-bearing
 
-Asp is not a stack resume. **World, Sui, and the agent policy layer** each kill a different failure mode. Remove any one and the product collapses.
+Asp is not a stack resume. **World** and **Sui** each kill a failure mode payment alone cannot. Remove either and fair physical checkout collapses.
 
 ### 1. World — Proof of Human is the trust event
 
@@ -38,8 +38,9 @@ Asp is not a stack resume. **World, Sui, and the agent policy layer** each kill 
 - **Get ticket** — Selfie / PoH before the event → one winner code
 - **Claim** — fresh human confirm at the kiosk before pay
 - **Deny path** — cancelled, failed, or ineligible proof → **no pay, no motor**
+- **Agent path** — agent may drive purchase, but a live human approval is still required before the protected action
 
-This is the prize-shaped moment World asks for: a proportionate credential at the moment access changes, including **agent-mediated** purchase that still requires a live human approval. Sandbox / event Agents proofs are wired through a real backend verify — we never invent `verified: true` on the client.
+This is the moment World asks for: a proportionate credential when access changes — including agent-mediated buys. Sandbox / event Agents proofs go through a real backend verify; we never invent `verified: true` on the client.
 
 ### 2. Sui — programmable payment + settlement
 
@@ -52,18 +53,6 @@ This is the prize-shaped moment World asks for: a proportionate credential at th
 - `@altaga/x402-sui` keeps paid actuation explicit on the resource server
 
 This is Sui as **DeFi & Payments** for physical checkout: payment flow, wallet UX, and settlement state — not a decorative chain badge.
-
-### 3. Curvegrid / AI agent — policy-aware, human-gated
-
-**Without a policy-aware agent story:** you have a kiosk demo, not an agent product.
-
-**With the agent loop:**
-- Agent can discover and drive purchase
-- Policy: price cap, this machine, **one** unit, this release
-- **Required human approval** (World) before the protected action
-- Out-of-policy or failed PoH → agent **cannot** force dispense
-
-That matches Curvegrid’s **Best AI Agent** brief (policy-aware payments + required human approvals). MultiBaas is optional; we did not force an EVM side-quest onto a Sui booth.
 
 ---
 
@@ -103,20 +92,17 @@ Second claim with the same entitlement must fail. That beat is the product.
   <img src="images/shot-demo.png" alt="Asp — backup demo flow" width="90%"/>
 </div>
 <div align="center">
-  <i>Agent-friendly backup path — same human gate + pay + motor.</i>
+  <i>Backup path — same human gate + Sui pay + motor.</i>
 </div>
 
 ---
 
-## Partner map (ETHGlobal — 3 slots)
+## Partner map (ETHGlobal)
 
 | Slot | Partner | What Asp proves |
 |---|---|---|
 | 1 | **World** | IDKit + Agents: fair scarce access; agent cannot act without live PoH |
 | 2 | **Sui** | DeFi & Payments: USDC claim/settlement before physical actuation |
-| 3 | **Curvegrid** | Best AI Agent: policy + required human approval (no MultiBaas required) |
-
-Skipped on purpose: ENS / Uniswap / 1inch (wrong chain quests), Intercepta (no Sui risk API).
 
 ---
 
@@ -147,5 +133,5 @@ npx expo start --web --port 8087
 ---
 
 <div align="center">
-  <sub>ETHGlobal Tokyo 2026 · World · Sui · Curvegrid</sub>
+  <sub>ETHGlobal Tokyo 2026 · World · Sui</sub>
 </div>

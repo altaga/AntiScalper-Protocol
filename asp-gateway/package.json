@@ -2,7 +2,7 @@
   "name": "asp-gateway",
   "version": "0.1.0",
   "private": true,
-  "description": "Asp Gateway — deterministic Sui ↔ MQTT ↔ Walrus relayer for the x402 machine-to-machine economy.",
+  "description": "Asp Gateway — Sui payments, World PoH policy, and MQTT dispense for limited physical releases.",
   "type": "module",
   "main": "src/index.js",
   "scripts": {

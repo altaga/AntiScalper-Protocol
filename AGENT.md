@@ -2,15 +2,14 @@
 
 Asp (AntiScalper Protocol) = **fair limited physical checkout** when an agent buys for a human.
 
-## Why the three partners matter to an agent
+## Why World + Sui matter to an agent
 
 | Partner | What the agent cannot fake |
 |---|---|
 | **World** | Live Proof of Human / Agents verify — denied proof ⇒ no protected action |
 | **Sui** | Real USDC settlement (Payment Kit / x402) — no settle ⇒ no dispense |
-| **Curvegrid-shaped policy** | Limits (one unit, this machine, price) + **required human approval** |
 
-Payment alone is not authorization. PoH + burned entitlement + settle ⇒ one MQTT motor spin.
+Policy (one unit, this machine, this release) sits on top of those two rails. Payment alone is not authorization. PoH + burned entitlement + settle ⇒ one MQTT motor spin.
 
 ## Loop
 

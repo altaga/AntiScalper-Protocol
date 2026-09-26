@@ -1,3 +1,4 @@
+// waits on hire settlement before advancing phases
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   completeKioskCheckout,

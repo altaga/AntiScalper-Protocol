@@ -151,7 +151,7 @@ Agents should never talk to physical hardware directly. IoT devices do not have 
 The Gateway solves this by acting as a powerful Protocol Translator:
 1. **Authentication Barrier**: It handles x402 payment interceptions. Crucially, **the Facilitator verifies the transaction, not the Gateway**. The Gateway securely offloads cryptographic verification to the Facilitator before releasing the API route.
 2. **Protocol Translation**: It translates incoming HTTP REST requests into lightweight **MQTT Pub/Sub** messages dispatched to the hardware.
-3. **Dynamic Schema**: It serves a live `agent-guide.json` at `/asp/agent-guide.json` that any external AI agent can query to discover the connected hardware and their capabilities.
+3. **Dynamic Schema**: It serves a live `agent-guide.json` at `/asp/agent-guide.json` that any external AI agent can query to discover the connected hardware and its capabilities.
 
 ```mermaid
 graph TD
@@ -171,7 +171,7 @@ graph TD
 
 **Live Production Endpoints (Testnet):**
 - **Gateway Web Interfaces:**
-  - [User Test Page (`/user`)](https://gateway.example.com/user) — Visual dashboard for human users to get information about the connected devices and their capabilities
+  - [User Test Page (`/user`)](https://gateway.example.com/user) — Visual dashboard for human users to get information about the connected devices and its capabilities
   - [Agentic Integration Guide (`/agentic`)](https://gateway.example.com/agentic) — Instructions and payload examples for AI agents
 - **API Routes:**
   - `GET` [`https://gateway.example.com/asp/agent-guide.json`](https://gateway.example.com/asp/agent-guide.json) — Live LLM-readable device schema
@@ -388,3 +388,4 @@ Asp isn't just a protocol—it is the foundational nervous system for the autono
 </div>
 
 ---
+

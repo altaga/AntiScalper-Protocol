@@ -7,7 +7,7 @@ import { settings } from './services/settings/settings.js';
 
 export function createGatewayApp({ dispatch, brokerState, inFlight }) {
   const app = express();
-  app.use(/* cors before routes */ cors({
+  app.use(cors({
     exposedHeaders: ['payment-required', 'payment-signature', 'payment-response', 'facilitator-url']
   }));
   app.use(express.json());

@@ -1,4 +1,3 @@
-// poll Payment Kit; dont invent paid=true
 import {
   createPaymentTransactionUri,
   DEFAULT_REGISTRY_NAME,

@@ -1,4 +1,3 @@
-// x402 hire helper for the dapp
 const GATEWAY =
   (typeof process !== 'undefined' && process.env?.EXPO_PUBLIC_GATEWAY_URL) ||
   'https://gateway.example.com';

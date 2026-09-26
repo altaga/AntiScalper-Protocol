@@ -1,4 +1,3 @@
-// hackathon smoke - run against live gateway
 /**
  * Mainnet x402 hire smoke — payment path only.
  * Uses gateway keypair as buyer (self-pay 2000 USDC base units).

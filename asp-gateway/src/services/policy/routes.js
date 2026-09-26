@@ -663,7 +663,7 @@ export function createPolicyRouter() {
       ...winners,
       intentsCleared,
       message:
-        'Demo claims + winners cleared. Same World identity can enroll and claim again (local demo store).',
+        'Demo wipe: winners (Get), ticket claims (Claim), nullifier claims (Backup), petitions, and kiosk intents.',
     });
   });
 

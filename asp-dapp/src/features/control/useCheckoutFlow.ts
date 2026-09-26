@@ -92,9 +92,20 @@ export function useCheckoutFlow() {
     setAlreadyClaimed(false);
     setErrorDetail(null);
     if (!t) return;
+
+    // Drop any in-flight claim from a previous ticket.
+    pollStop.current = true;
+    completeInFlight.current = false;
+    abandonComplete.current = true;
+    setActivePoh(null);
+    setKioskPay(null);
+    setLastHire(null);
+    setWorldOpen(false);
+
     try {
       const data = await getWinner(t);
       if (!data.winner) {
+        setPhase('idle');
         setErrorDetail('Unknown ticket.');
         setStatusText('Unknown ticket — open Get on your phone and register first.');
         return;
@@ -106,14 +117,55 @@ export function useCheckoutFlow() {
         setStatusText('This ticket was already claimed. You cannot claim it again.');
         return;
       }
+
+      // Fresh unused ticket → start claim so World ID shows immediately.
       setTicketReady(true);
-      setPhase('idle');
-      setStatusText(`Ticket ${t} ready. Tap Start claim, then confirm with World ID.`);
+      setBusy(true);
+      setPhase('requested');
+      setStatusText('Preparing claim… capsule stays locked until you finish.');
+      try {
+        const petitionData = await createPetition({
+          target_hardware_id: GACHA_DEVICE_ID,
+          command: [...DISPENSE_ONCE],
+        });
+        const petition = petitionData.petition;
+        const next = petitionData.next;
+        const poh: PohCardPayload = {
+          petition_id: petition.petition_id,
+          device_name: DEVICE_LABEL,
+          command: petition.command || [...DISPENSE_ONCE],
+          release_id: petition.release_id,
+          status: petition.status || 'pending_human',
+          preferred_action:
+            next?.preferred_action || petition.release_action || petition.job_action,
+          job_action: petition.job_action,
+          release_action: petition.release_action,
+        };
+        setActivePoh(poh);
+        if (petition?.status === 'pending_human' || next?.step === 'proof_of_human') {
+          setPhase('awaiting_human');
+          setStatusText(
+            'Next: confirm with World ID (same person as Get), then pay on your phone.'
+          );
+        } else {
+          setPhase('authorized');
+          setBusy(false);
+          await startQrPay(poh.petition_id);
+          return;
+        }
+      } catch (e: any) {
+        setPhase('error');
+        setErrorDetail(String(e?.message || e));
+        setStatusText('Could not start the claim. Tap Use ticket again.');
+      } finally {
+        setBusy(false);
+      }
     } catch (e: any) {
+      setPhase('idle');
       setErrorDetail(String(e?.message || e));
       setStatusText('Unknown ticket — open Get on your phone and register first.');
     }
-  }, []);
+  }, [startQrPay]);
 
   const requestCapsule = useCallback(async () => {
     if (busy) return;
@@ -128,68 +180,14 @@ export function useCheckoutFlow() {
       setStatusText('Enter your ticket and tap Use ticket before claiming.');
       return;
     }
-
-    setBusy(true);
-    setErrorDetail(null);
-    setLastHire(null);
-    setKioskPay(null);
-    setPhase('requested');
-    setStatusText('Preparing claim… capsule stays locked until you finish.');
-
-    try {
-      const data = await createPetition({
-        target_hardware_id: GACHA_DEVICE_ID,
-        command: [...DISPENSE_ONCE],
-      });
-      const petition = data.petition;
-      const next = data.next;
-
-      if (petition?.status === 'pending_human' || next?.step === 'proof_of_human') {
-        const poh: PohCardPayload = {
-          petition_id: petition.petition_id,
-          device_name: DEVICE_LABEL,
-          command: petition.command,
-          release_id: petition.release_id,
-          status: petition.status,
-          preferred_action: next?.preferred_action || petition.release_action || petition.job_action,
-          job_action: petition.job_action,
-          release_action: petition.release_action,
-        };
-        setActivePoh(poh);
-        setPhase('awaiting_human');
-        setStatusText(
-          'Next: confirm with World ID (same person as Get), then pay on your phone.'
-        );
-      } else {
-        const poh: PohCardPayload = {
-          petition_id: petition.petition_id,
-          device_name: DEVICE_LABEL,
-          command: petition.command || [...DISPENSE_ONCE],
-          release_id: petition.release_id,
-          status: petition.status || 'authorized',
-          preferred_action: petition.release_action || petition.job_action,
-          job_action: petition.job_action,
-          release_action: petition.release_action,
-        };
-        setActivePoh(poh);
-        setPhase('authorized');
-        setBusy(false);
-        await startQrPay(poh.petition_id);
-        return;
-      }
-    } catch (e: any) {
-      setPhase('error');
-      setErrorDetail(String(e?.message || e));
-      setStatusText('Could not start the claim. Try Start claim again.');
-    } finally {
-      setBusy(false);
-    }
-  }, [busy, startQrPay, ticket, ticketReady]);
+    // Re-run the same path as Use ticket (fresh petition + World).
+    await loadTicket(t);
+  }, [busy, loadTicket, ticket, ticketReady]);
 
   const openWorldVerify = useCallback(() => {
-    if (!activePoh || !ticketReady) return;
+    if (!activePoh) return;
     setWorldOpen(true);
-  }, [activePoh, ticketReady]);
+  }, [activePoh]);
 
   const onWorldProof = useCallback(
     async (idkitResponse: unknown) => {

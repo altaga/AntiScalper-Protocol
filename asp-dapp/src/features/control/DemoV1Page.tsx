@@ -58,7 +58,9 @@ export function DemoV1Page() {
     try {
       const out = await resetDemoClaims();
       flow.reset();
-      toast.success(`Demo reset — ${out?.claimsCleared ?? 0} claims cleared.`);
+      toast.success(
+        `Demo reset — Get, Claim & Backup wiped (${out?.claimsCleared ?? 0} claims, ${out?.winnersCleared ?? 0} winners)`
+      );
     } catch (e: any) {
       toast.error(e?.message || 'Reset failed');
     } finally {

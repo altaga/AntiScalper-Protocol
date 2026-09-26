@@ -64,7 +64,7 @@ export function CheckoutPage() {
       flow.reset();
       setTicketDraft('');
       toast.success(
-        `Demo reset — ${out?.claimsCleared ?? 0} claims, ${out?.winnersCleared ?? 0} winners`
+        `Demo reset — Get, Claim & Backup wiped (${out?.claimsCleared ?? 0} claims, ${out?.winnersCleared ?? 0} winners)`
       );
     } catch (e: any) {
       toast.error(e?.message || 'Reset failed');
@@ -85,7 +85,6 @@ export function CheckoutPage() {
 
   const canVerify =
     !flow.busy &&
-    Boolean(flow.ticketReady) &&
     flow.activePoh &&
     (flow.phase === 'awaiting_human' || flow.activePoh.status === 'pending_human');
 
@@ -122,39 +121,6 @@ export function CheckoutPage() {
           </header>
 
           <section style={styles.panel} aria-label="Checkout">
-            {flow.alreadyClaimed ? (
-              <div style={styles.claimedHero} role="alert" aria-label="Ticket already claimed">
-                <div style={styles.claimedEyebrow}>Already claimed</div>
-                <h2 style={styles.claimedTitle}>You cannot claim this ticket again</h2>
-                <p style={styles.claimedLede}>
-                  {flow.ticket ? (
-                    <>
-                      <strong>{flow.ticket}</strong> already redeemed one capsule. One ticket ·
-                      one person · one capsule — no second claim.
-                    </>
-                  ) : (
-                    <>
-                      This ticket already redeemed one capsule. One ticket · one person · one
-                      capsule — no second claim.
-                    </>
-                  )}
-                </p>
-                <div style={styles.claimedBadge}>No second claim</div>
-                <button
-                  type="button"
-                  style={styles.primary}
-                  disabled={flow.busy}
-                  onClick={() => {
-                    clearDemoTicket();
-                    setTicketDraft('');
-                    flow.tryAnotherTicket();
-                  }}
-                >
-                  Enter another ticket
-                </button>
-              </div>
-            ) : (
-              <>
             <label style={styles.fieldLabel} htmlFor="asp-ticket">
               Ticket from Get
             </label>
@@ -188,11 +154,37 @@ export function CheckoutPage() {
                 Use ticket
               </button>
             </div>
+
+            {flow.alreadyClaimed ? (
+              <div style={styles.claimedHero} role="alert" aria-label="Ticket already claimed">
+                <div style={styles.claimedEyebrow}>Already claimed</div>
+                <h2 style={styles.claimedTitle}>You cannot claim this ticket again</h2>
+                <p style={styles.claimedLede}>
+                  {flow.ticket ? (
+                    <>
+                      <strong>{flow.ticket}</strong> already redeemed one capsule. One ticket ·
+                      one person · one capsule — no second claim.
+                    </>
+                  ) : (
+                    <>
+                      This ticket already redeemed one capsule. One ticket · one person · one
+                      capsule — no second claim.
+                    </>
+                  )}
+                </p>
+                <div style={styles.claimedBadge}>No second claim</div>
+                <p style={styles.claimedHint}>
+                  Type a different ticket above and tap Use ticket — World ID will show again for
+                  that person.
+                </p>
+              </div>
+            ) : (
+              <>
             {flow.ticket ? (
               <p style={styles.ticketStatus}>
                 <strong>{flow.ticket}</strong>
                 {flow.ticketReady
-                  ? ' · ready — tap Start claim below'
+                  ? ' · ready'
                   : ' · look up this ticket with Use ticket'}
               </p>
             ) : (

@@ -35,7 +35,7 @@ export function SignupPage() {
       setAlreadyClaimed(false);
       setPhase('ready');
       setDetail(null);
-      toast.success('Demo cleared');
+      toast.success('Demo reset — Get, Claim & Backup wiped');
     } catch (e: any) {
       toast.error(e?.message || 'Reset failed');
     } finally {
@@ -90,6 +90,17 @@ export function SignupPage() {
     } catch {
       toast.error('Could not copy');
     }
+  };
+
+  /** Next person in line — local UI only; does not wipe other winners. */
+  const nextPerson = () => {
+    clearDemoTicket();
+    setTicket(null);
+    setAlreadyEnrolled(false);
+    setAlreadyClaimed(false);
+    setDetail(null);
+    setWorldOpen(false);
+    setPhase('ready');
   };
 
   return (
@@ -150,8 +161,24 @@ export function SignupPage() {
                       </a>
                     </div>
                   </section>
+
+                  <div style={styles.nextPerson}>
+                    <button type="button" style={styles.nextPersonBtn} onClick={nextPerson}>
+                      Get another ticket
+                    </button>
+                    <p style={styles.nextPersonLegend}>For another person — leaves this ticket intact</p>
+                  </div>
                 </>
               )}
+
+              {alreadyClaimed ? (
+                <div style={styles.nextPerson}>
+                  <button type="button" style={styles.nextPersonBtn} onClick={nextPerson}>
+                    Get another ticket
+                  </button>
+                  <p style={styles.nextPersonLegend}>For another person — not a second ticket for you</p>
+                </div>
+              ) : null}
             </>
           ) : (
             <>
@@ -355,6 +382,27 @@ const styles: Record<string, React.CSSProperties> = {
     display: 'flex',
     gap: 10,
     marginTop: 18,
+  },
+  nextPerson: {
+    marginTop: 22,
+    textAlign: 'center' as const,
+  },
+  nextPersonBtn: {
+    width: '100%',
+    border: `1px solid ${aspBrand.lineStrong}`,
+    borderRadius: 980,
+    padding: '12px 18px',
+    fontSize: 14,
+    fontWeight: 650,
+    cursor: 'pointer',
+    background: aspBrand.paper,
+    color: aspBrand.ink,
+  },
+  nextPersonLegend: {
+    margin: '8px 0 0',
+    fontSize: 12,
+    lineHeight: 1.4,
+    color: aspBrand.muted,
   },
   secondary: {
     flex: 1,

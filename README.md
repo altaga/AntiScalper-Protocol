@@ -8,6 +8,12 @@
 
 ETHGlobal Tokyo 2026 · Partner slots: **World** + **Sui**
 
+<div align="center">
+
+**Fast links** · [Live demo](https://altaga-asp.expo.app) · [World](#world) · [Sui](#sui)
+
+</div>
+
 One eligible human. One capsule. Real motor. Payment alone is not enough — Asp answers *who*, *what*, and *once* before anything spins.
 
 ---
@@ -105,6 +111,8 @@ flowchart LR
 <div align="center"><i>Backup — same gates, no pre-ticket</i></div>
 
 ---
+
+<a id="world"></a>
 
 # Sponsor 1 — World (IDKit + Agents)
 
@@ -271,6 +279,8 @@ Fresh staging token lives on the dapp; gateway receives a **preverified** author
 | [`asp-gateway/src/services/policy/routes.js`](asp-gateway/src/services/policy/routes.js) | `/asp/winners/*`, `/asp/proof-of-human/*` |
 
 ---
+
+<a id="sui"></a>
 
 # Sponsor 2 — Sui (DeFi & Payments)
 

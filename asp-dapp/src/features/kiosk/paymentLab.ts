@@ -32,8 +32,8 @@ export function buildSlushPayLinks(params: {
   amount: string;
   coinType: string;
   nonce: string;
-  label: string;
-  message: string;
+  label?: string;
+  message?: string;
   registryName?: string;
 }) {
   const q = new URLSearchParams({
@@ -42,9 +42,11 @@ export function buildSlushPayLinks(params: {
     coinType: params.coinType,
     nonce: params.nonce,
     registry: params.registryName || DEFAULT_REGISTRY_NAME,
-    label: params.label,
-    message: params.message,
   });
+  const label = params.label?.trim();
+  const message = params.message?.trim();
+  if (label) q.set('label', label);
+  if (message) q.set('message', message);
   const query = q.toString();
   return {
     /** Custom scheme — opens Slush natively when installed (best for phone QR). */

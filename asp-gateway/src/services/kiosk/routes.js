@@ -126,8 +126,7 @@ export function createKioskRouter({ dispatch }) {
         petition_id: null,
         amount: skill.price,
         coinType: skill.token,
-        label: 'Asp kiosk lab',
-        message: 'Slush Payment Kit smoke test (no PoH)',
+        label: 'Asp lab',
       });
       return res.status(201).json({
         ok: true,
@@ -207,8 +206,7 @@ export function createKioskRouter({ dispatch }) {
         petition_id,
         amount: skill.price,
         coinType: skill.token,
-        label: 'Asp capsule',
-        message: `Petition ${petition_id}`,
+        label: 'Asp',
       });
       return res.status(201).json({
         ok: true,

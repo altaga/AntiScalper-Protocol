@@ -244,7 +244,7 @@ export function DemoV1Page() {
                       human — payment stays on the phone.
                     </p>
                     <div style={styles.qrWrap}>
-                      <PayQr value={flow.kioskPay.payUrl} size={212} />
+                      <PayQr value={flow.kioskPay.payUrl} size={256} />
                     </div>
                     <a href={flow.kioskPay.payUrl} style={styles.link}>
                       Open in Slush
@@ -509,9 +509,9 @@ const styles: Record<string, React.CSSProperties> = {
     textAlign: 'center' as const,
   },
   qrWrap: {
-    padding: 10,
-    background: '#fff',
-    borderRadius: 14,
+    padding: 16,
+    background: '#FFFFFF',
+    borderRadius: 8,
     border: `1px solid ${aspBrand.line}`,
   },
   waitLine: {

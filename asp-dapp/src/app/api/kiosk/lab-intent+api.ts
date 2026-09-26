@@ -18,8 +18,7 @@ export async function POST(_request: Request): Promise<Response> {
       amount: LAB_AMOUNT,
       coinType: LAB_USDC,
       nonce,
-      label: 'Asp kiosk lab',
-      message: 'Slush Payment Kit smoke test (dapp lab, no PoH)',
+      label: 'Asp lab',
     });
 
     const intent = putLabIntent({

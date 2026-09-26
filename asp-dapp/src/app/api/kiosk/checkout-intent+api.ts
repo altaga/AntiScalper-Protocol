@@ -36,8 +36,8 @@ export async function POST(request: Request): Promise<Response> {
       amount: LAB_AMOUNT,
       coinType: LAB_USDC,
       nonce,
-      label: body.label || 'Asp capsule',
-      message: body.message || `Petition ${petition_id}`,
+      label: (body.label || 'Asp').trim().slice(0, 24),
+      message: body.message?.trim().slice(0, 40),
     });
 
     const intent = putLabIntent({

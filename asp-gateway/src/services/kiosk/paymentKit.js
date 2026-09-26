@@ -33,15 +33,20 @@ export function buildSlushPayUrl({
   message,
   registryName = DEFAULT_REGISTRY_NAME,
 }) {
-  const suiUri = createPaymentTransactionUri({
+  const shortLabel = typeof label === 'string' && label.trim() ? label.trim().slice(0, 24) : undefined;
+  const shortMessage =
+    typeof message === 'string' && message.trim() ? message.trim().slice(0, 40) : undefined;
+  const uriArgs = {
     receiverAddress: receiver,
     amount: BigInt(amount),
     coinType,
     nonce,
-    label,
-    message,
     registryName,
-  });
+  };
+  if (shortLabel) uriArgs.label = shortLabel;
+  if (shortMessage) uriArgs.message = shortMessage;
+
+  const suiUri = createPaymentTransactionUri(uriArgs);
   const query = String(suiUri).includes('?')
     ? String(suiUri).slice(String(suiUri).indexOf('?') + 1)
     : '';

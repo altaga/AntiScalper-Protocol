@@ -171,7 +171,7 @@ export function KioskLabPanel() {
             <p style={styles.kioskHint}>receiver {receiver.slice(0, 10)}…{receiver.slice(-6)}</p>
           ) : null}
           <p style={styles.kioskHint}>deep link · slush://pay</p>
-          <PayQr value={payUrl} size={240} />
+          <PayQr value={payUrl} size={256} />
           <a href={payUrl} style={styles.link}>
             Open in Slush
           </a>

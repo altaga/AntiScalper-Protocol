@@ -5,8 +5,11 @@ type Props = {
   size?: number;
 };
 
-/** Web QR for kiosk booth — generates a data-URL via `qrcode`. */
-export function PayQr({ value, size = 220 }: Props) {
+/**
+ * Kiosk Slush pay QR — tuned for instant phone scans on a bright booth screen:
+ * quiet zone ≥4 modules, pure black/white, ECC L (screen, no logo/damage).
+ */
+export function PayQr({ value, size = 256 }: Props) {
   const [src, setSrc] = useState<string | null>(null);
   const [err, setErr] = useState<string | null>(null);
 
@@ -19,9 +22,9 @@ export function PayQr({ value, size = 220 }: Props) {
         const QRCode = require('qrcode');
         const url = await QRCode.toDataURL(value, {
           width: size,
-          margin: 2,
-          errorCorrectionLevel: 'M',
-          color: { dark: '#1D1D1F', light: '#FFFFFF' },
+          margin: 4,
+          errorCorrectionLevel: 'L',
+          color: { dark: '#000000', light: '#FFFFFF' },
         });
         if (!cancelled) setSrc(url);
       } catch (e: any) {
@@ -42,8 +45,8 @@ export function PayQr({ value, size = 220 }: Props) {
         style={{
           width: size,
           height: size,
-          background: 'rgba(0,0,0,0.04)',
-          borderRadius: 12,
+          background: '#FFFFFF',
+          borderRadius: 0,
         }}
         aria-busy
       />
@@ -55,7 +58,11 @@ export function PayQr({ value, size = 220 }: Props) {
       width={size}
       height={size}
       alt="Slush pay QR"
-      style={{ borderRadius: 12, display: 'block' }}
+      style={{
+        display: 'block',
+        background: '#FFFFFF',
+        borderRadius: 0,
+      }}
     />
   );
 }

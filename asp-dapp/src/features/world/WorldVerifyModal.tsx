@@ -1,3 +1,4 @@
+// note: trust server verify result, dont flip UI early
 import React, { useEffect, useRef, useState } from 'react';
 import { theme } from '../../theme/tokens';
 

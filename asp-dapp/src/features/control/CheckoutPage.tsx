@@ -102,7 +102,7 @@ export function CheckoutPage() {
 
   const statusLine =
     flow.phase === 'idle' && !flow.ticket
-      ? 'Type your ticket from Get, then tap Use ticket.'
+      ? 'Enter your ticket, then continue.'
       : flow.statusText;
 
   return (
@@ -115,14 +115,15 @@ export function CheckoutPage() {
             <p style={styles.eyebrow}>{RELEASE_LABEL}</p>
             <h1 style={styles.title}>{DEVICE_LABEL}</h1>
             <p style={styles.lede}>
-              Step 2 · At the event PC. Enter your ticket, confirm with World ID, pay on your
-              phone with Slush — then one capsule comes out.
+              Claim is where entitlement meets payment. Enter your ticket, prove you are the
+              same human with World ID, pay USDC on Sui via Slush — then the machine releases
+              one capsule. Once.
             </p>
           </header>
 
           <section style={styles.panel} aria-label="Checkout">
             <label style={styles.fieldLabel} htmlFor="asp-ticket">
-              Ticket from Get
+              Your ticket
             </label>
             <div style={styles.ticketRow}>
               <input
@@ -151,31 +152,30 @@ export function CheckoutPage() {
                   void flow.loadTicket(ticketDraft);
                 }}
               >
-                Use ticket
+                Continue
               </button>
             </div>
 
             {flow.alreadyClaimed ? (
               <div style={styles.claimedHero} role="alert" aria-label="Ticket already claimed">
                 <div style={styles.claimedEyebrow}>Already claimed</div>
-                <h2 style={styles.claimedTitle}>You cannot claim this ticket again</h2>
+                <h2 style={styles.claimedTitle}>This ticket cannot claim again</h2>
                 <p style={styles.claimedLede}>
                   {flow.ticket ? (
                     <>
-                      <strong>{flow.ticket}</strong> already redeemed one capsule. One ticket ·
-                      one person · one capsule — no second claim.
+                      <strong>{flow.ticket}</strong> already redeemed its capsule. Asp enforces
+                      one human · one ticket · one unit — no second claim.
                     </>
                   ) : (
                     <>
-                      This ticket already redeemed one capsule. One ticket · one person · one
-                      capsule — no second claim.
+                      This ticket already redeemed its capsule. Asp enforces one human · one
+                      ticket · one unit — no second claim.
                     </>
                   )}
                 </p>
                 <div style={styles.claimedBadge}>No second claim</div>
                 <p style={styles.claimedHint}>
-                  Type a different ticket above and tap Use ticket — World ID will show again for
-                  that person.
+                  Enter a different unused ticket above and tap Continue to verify that person.
                 </p>
               </div>
             ) : (
@@ -183,13 +183,11 @@ export function CheckoutPage() {
             {flow.ticket ? (
               <p style={styles.ticketStatus}>
                 <strong>{flow.ticket}</strong>
-                {flow.ticketReady
-                  ? ' · ready'
-                  : ' · look up this ticket with Use ticket'}
+                {flow.ticketReady ? ' · loaded' : ' · tap Continue to look it up'}
               </p>
             ) : (
               <p style={styles.ticketStatus}>
-                No ticket yet — open Get on your phone if you don&apos;t have a code.
+                No ticket yet — enroll first with Get if you need a code.
               </p>
             )}
 
@@ -253,10 +251,10 @@ export function CheckoutPage() {
 
             {flow.phase === 'awaiting_phone_pay' && flow.kioskPay ? (
               <div style={styles.payBox} aria-label="Phone pay QR">
-                <div style={styles.payTitle}>Pay on your phone</div>
+                <div style={styles.payTitle}>Pay on Sui</div>
                 <p style={styles.payHint}>
-                  Open Slush Wallet and scan this QR. This PC already confirmed you&apos;re human
-                  — payment happens on the phone only.
+                  Scan with Slush on your phone. World ID already verified here — settlement
+                  waits on a real Payment Kit receipt before the machine moves.
                 </p>
                 <div style={styles.qrWrap}>
                   <PayQr value={flow.kioskPay.payUrl} size={256} />
@@ -371,9 +369,9 @@ export function CheckoutPage() {
         action={flow.enrollAction}
         signal={flow.activePoh?.petition_id || undefined}
         title="Confirm it's you"
-        subtitle="Same World ID as when you got your ticket. This unlocks payment for one capsule."
-        successTitle="World validated"
-        successSubtitle="Same person as Get. Close this panel to continue to pay."
+        subtitle="Same World ID as enrollment. Asp unlocks payment only when the human matches the ticket."
+        successTitle="Human confirmed"
+        successSubtitle="Close this to continue to Sui payment."
         onVerified={async (result) => {
           try {
             const out = await flow.onWorldProof(result);
@@ -450,6 +448,12 @@ const styles: Record<string, React.CSSProperties> = {
     fontWeight: 650,
     letterSpacing: 0.04,
     textTransform: 'uppercase' as const,
+  },
+  claimedHint: {
+    margin: '0 0 4px',
+    fontSize: aspBrand.type.hint,
+    lineHeight: 1.45,
+    color: aspBrand.muted,
   },
   eyebrow: {
     margin: 0,

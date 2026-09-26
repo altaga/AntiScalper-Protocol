@@ -21,7 +21,7 @@ export function useCheckoutFlow() {
   const [phase, setPhase] = useState<ChatPhase>('idle');
   const [busy, setBusy] = useState(false);
   const [statusText, setStatusText] = useState(
-    'Enter your ticket from Get, then tap Use ticket.'
+    'Enter your ticket, then continue.'
   );
   const [errorDetail, setErrorDetail] = useState<string | null>(null);
   const [ticket, setTicket] = useState('');
@@ -74,7 +74,7 @@ export function useCheckoutFlow() {
       abandonComplete.current = false;
       setPhase('awaiting_phone_pay');
       setStatusText(
-        'Scan the QR with Slush on your phone. This PC waits — World ID already confirmed here.'
+        'Scan the Slush QR on your phone. Identity is already verified here — payment settles on Sui.'
       );
     } catch (e: any) {
       setPhase('error');
@@ -107,14 +107,14 @@ export function useCheckoutFlow() {
       if (!data.winner) {
         setPhase('idle');
         setErrorDetail('Unknown ticket.');
-        setStatusText('Unknown ticket — open Get on your phone and register first.');
+        setStatusText('Unknown ticket — enroll with Get first to receive a code.');
         return;
       }
       if (data.winner.claimed_at) {
         setAlreadyClaimed(true);
         setPhase('denied');
         setErrorDetail(null);
-        setStatusText('This ticket was already claimed. You cannot claim it again.');
+        setStatusText('This ticket already claimed its capsule. Asp will not release another.');
         return;
       }
 
@@ -122,7 +122,7 @@ export function useCheckoutFlow() {
       setTicketReady(true);
       setBusy(true);
       setPhase('requested');
-      setStatusText('Preparing claim… capsule stays locked until you finish.');
+      setStatusText('Checking entitlement…');
       try {
         const petitionData = await createPetition({
           target_hardware_id: GACHA_DEVICE_ID,
@@ -145,7 +145,7 @@ export function useCheckoutFlow() {
         if (petition?.status === 'pending_human' || next?.step === 'proof_of_human') {
           setPhase('awaiting_human');
           setStatusText(
-            'Next: confirm with World ID (same person as Get), then pay on your phone.'
+            'Confirm you are the same human who enrolled — then pay on Sui to release the capsule.'
           );
         } else {
           setPhase('authorized');
@@ -156,14 +156,14 @@ export function useCheckoutFlow() {
       } catch (e: any) {
         setPhase('error');
         setErrorDetail(String(e?.message || e));
-        setStatusText('Could not start the claim. Tap Use ticket again.');
+        setStatusText('Could not start claim. Tap Continue again.');
       } finally {
         setBusy(false);
       }
     } catch (e: any) {
       setPhase('idle');
       setErrorDetail(String(e?.message || e));
-      setStatusText('Unknown ticket — open Get on your phone and register first.');
+      setStatusText('Unknown ticket — enroll with Get first to receive a code.');
     }
   }, [startQrPay]);
 
@@ -171,13 +171,13 @@ export function useCheckoutFlow() {
     if (busy) return;
     const t = ticket.trim().toUpperCase();
     if (!t) {
-      setErrorDetail('Enter your ticket from Get first.');
-      setStatusText('Ticket required before you can claim.');
+      setErrorDetail('Enter your ticket first.');
+      setStatusText('A ticket is required before claim.');
       return;
     }
     if (!ticketReady) {
-      setErrorDetail('Use ticket first so we can load your World ID registration.');
-      setStatusText('Enter your ticket and tap Use ticket before claiming.');
+      setErrorDetail('Look up your ticket first.');
+      setStatusText('Enter your ticket and tap Continue.');
       return;
     }
     // Re-run the same path as Use ticket (fresh petition + World).
@@ -209,7 +209,7 @@ export function useCheckoutFlow() {
         setPhase('authorized');
         setErrorDetail(null);
         // Keep World ✓ modal open for the demo — pay QR still starts underneath.
-        setStatusText('Identity confirmed. Creating pay QR for your phone…');
+        setStatusText('Identity confirmed. Creating Slush pay link…');
         void startQrPay(updated.petition_id);
         return { ok: true as const, claimAlreadyUsed: false as const };
       } catch (e: any) {
@@ -221,7 +221,7 @@ export function useCheckoutFlow() {
           setPhase('denied');
           setAlreadyClaimed(true);
           setErrorDetail(null);
-          setStatusText('This ticket was already claimed. You cannot claim it again.');
+          setStatusText('This ticket already claimed its capsule. Asp will not release another.');
           setTicketReady(false);
           setWorldOpen(false);
           return { ok: false as const, claimAlreadyUsed: true as const };
@@ -422,10 +422,10 @@ export function useCheckoutFlow() {
     setTicket('');
     setTicketReady(false);
     setAlreadyClaimed(false);
-    setStatusText('Enter your ticket from Get, then tap Use ticket.');
+    setStatusText('Enter your ticket, then continue.');
   }, []);
 
-  /** Clear this ticket so someone else can type a different WIN-… (does not wipe the demo store). */
+  /** Clear this ticket so someone else can enter a different WIN-… (does not wipe the store). */
   const tryAnotherTicket = useCallback(() => {
     pollStop.current = true;
     completeInFlight.current = false;
@@ -440,7 +440,7 @@ export function useCheckoutFlow() {
     setTicket('');
     setTicketReady(false);
     setAlreadyClaimed(false);
-    setStatusText('Enter a different ticket from Get, then tap Use ticket.');
+    setStatusText('Enter another unused ticket, then continue.');
   }, []);
 
   const retryQr = useCallback(() => {

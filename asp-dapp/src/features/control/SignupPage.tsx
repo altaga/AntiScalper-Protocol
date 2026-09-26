@@ -114,11 +114,11 @@ export function SignupPage() {
               {alreadyClaimed ? (
                 <div style={styles.claimedBanner} role="alert">
                   <div style={styles.claimedEyebrow}>Already claimed</div>
-                  <h1 style={styles.title}>You cannot get another ticket</h1>
+                  <h1 style={styles.title}>This entitlement is used</h1>
                   <p style={styles.lede}>
-                    This World ID already has a winner ticket for this drop, and that ticket
-                    already redeemed a capsule. One person · one ticket · one capsule — no
-                    second claim.
+                    Asp ties one scarce unit to one human. Your World ID already holds a ticket
+                    for this release, and that ticket already claimed its capsule — no second
+                    ticket, no second claim.
                   </p>
                   <section style={styles.pass} aria-label="Your ticket">
                     <div style={styles.passTop}>
@@ -127,21 +127,21 @@ export function SignupPage() {
                     </div>
                     <div style={styles.passCode}>{ticket}</div>
                     <div style={styles.passRule} aria-hidden />
-                    <p style={styles.passHint}>Same ticket as before — not a new one</p>
+                    <p style={styles.passHint}>Your existing code — Asp will not issue another</p>
                   </section>
                 </div>
               ) : (
                 <>
                   <p style={styles.eyebrow}>
-                    {alreadyEnrolled ? 'Welcome back — same ticket' : "You're registered"}
+                    {alreadyEnrolled ? 'Welcome back' : 'Entitlement locked'}
                   </p>
                   <h1 style={styles.title}>
-                    {alreadyEnrolled ? 'This is still your ticket' : 'Save this ticket'}
+                    {alreadyEnrolled ? 'Your ticket' : 'Save this ticket'}
                   </h1>
                   <p style={styles.lede}>
                     {alreadyEnrolled
-                      ? 'World already knows you for this drop. You do not get a second code — bring this same one to the kiosk.'
-                      : "Copy it or take a photo. At the event kiosk PC, type this code — then confirm again with World ID so the machine knows it's still you."}
+                      ? 'Asp already bound this release to your World ID. Same human, same code — bring it to claim.'
+                      : 'This code is your claim to one capsule. Asp bound it to your World ID so only you can redeem it.'}
                   </p>
 
                   <section style={styles.pass} aria-label="Winner ticket">
@@ -151,22 +151,24 @@ export function SignupPage() {
                     </div>
                     <div style={styles.passCode}>{ticket}</div>
                     <div style={styles.passRule} aria-hidden />
-                    <p style={styles.passHint}>One ticket · one capsule · bring the code to the kiosk</p>
+                    <p style={styles.passHint}>One human · one ticket · one capsule</p>
                     <div style={styles.passActions}>
                       <button type="button" style={styles.secondary} onClick={() => void copyTicket()}>
                         Copy ticket
                       </button>
                       <a href="/claim" style={styles.primaryLink}>
-                        Claim
+                        Claim capsule
                       </a>
                     </div>
                   </section>
 
                   <div style={styles.nextPerson}>
                     <button type="button" style={styles.nextPersonBtn} onClick={nextPerson}>
-                      Get another ticket
+                      Next person
                     </button>
-                    <p style={styles.nextPersonLegend}>For another person — leaves this ticket intact</p>
+                    <p style={styles.nextPersonLegend}>
+                      Register someone else — your ticket stays valid
+                    </p>
                   </div>
                 </>
               )}
@@ -174,32 +176,34 @@ export function SignupPage() {
               {alreadyClaimed ? (
                 <div style={styles.nextPerson}>
                   <button type="button" style={styles.nextPersonBtn} onClick={nextPerson}>
-                    Get another ticket
+                    Next person
                   </button>
-                  <p style={styles.nextPersonLegend}>For another person — not a second ticket for you</p>
+                  <p style={styles.nextPersonLegend}>
+                    Register someone else — not a second ticket for you
+                  </p>
                 </div>
               ) : null}
             </>
           ) : (
             <>
-              <p style={styles.eyebrow}>Step 1 · Before the event</p>
-              <h1 style={styles.title}>Get your winner ticket</h1>
+              <p style={styles.eyebrow}>AntiScalper · Enroll</p>
+              <h1 style={styles.title}>Get your ticket</h1>
               <p style={styles.lede}>
-                Confirm you&apos;re a real person with World ID on this phone. You&apos;ll get a
-                short code — that code is what you bring to the kiosk. You can close this browser
-                afterward.
+                Asp stops scalpers by proving who is entitled before anyone pays. Verify with
+                World ID — you receive one ticket bound to you for this release.
               </p>
 
               <section style={styles.card}>
                 <ol style={styles.list}>
                   <li style={styles.li}>
-                    <strong>1. World ID</strong> — one face check on this phone
+                    <strong>1. Prove you&apos;re human</strong> — World ID on this device
                   </li>
                   <li style={styles.li}>
-                    <strong>2. Ticket</strong> — you receive a short code (e.g. WIN-····)
+                    <strong>2. Receive a ticket</strong> — one code, tied to your identity
                   </li>
                   <li style={styles.li}>
-                    <strong>3. Kiosk</strong> — type the code, confirm again, pay, get a capsule
+                    <strong>3. Claim later</strong> — same person verifies again, pays on Sui,
+                    machine releases once
                   </li>
                 </ol>
 
@@ -211,7 +215,7 @@ export function SignupPage() {
                   disabled={busy || phase === 'working'}
                   onClick={startWorld}
                 >
-                  {phase === 'working' ? 'Confirming with World…' : 'Confirm with World ID'}
+                  {phase === 'working' ? 'Opening World ID…' : 'Continue with World ID'}
                 </button>
               </section>
             </>
@@ -233,10 +237,10 @@ export function SignupPage() {
         }}
         action={ENROLL_ACTION}
         signal="asp-enroll"
-        title="Confirm with World ID"
-        subtitle="One face check creates your winner ticket. Bring the code to the kiosk — not this browser."
-        successTitle="World validated"
-        successSubtitle="You're registered. Close this panel to see your winner ticket."
+        title="Prove you're human"
+        subtitle="World ID binds this release to you. Asp issues one ticket — only that identity can claim."
+        successTitle="You're enrolled"
+        successSubtitle="Close this to see your ticket. Keep the code for claim."
         onVerified={onVerified}
         onError={(msg) => {
           setPhase('error');

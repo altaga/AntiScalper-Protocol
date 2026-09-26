@@ -6,7 +6,8 @@ export type AspRoute = 'signup' | 'kiosk' | 'v1';
 /** Demo brand — monochrome protocol. No rental-lime, no Apple blue. */
 export const aspBrand = {
   ink: '#111111',
-  header: '#111111',
+  /** Match logo-dark.png letter fill (#000) so the mark doesn't float on a different black. */
+  header: '#000000',
   paper: '#FAFAFA',
   paperCard: '#FFFFFF',
   line: 'rgba(17,17,17,0.1)',
@@ -86,8 +87,8 @@ export function AspDemoFooter({ onReset, resetBusy, resetLabel = 'Reset demo' }:
         <span style={styles.dot} aria-hidden>
           ·
         </span>
-        <a href="/v1" style={styles.footerLink} title="Backup demo — no ticket, claims on the spot">
-          Backup demo
+        <a href="/v1" style={styles.footerLink} title="Claim without a pre-issued ticket">
+          No-ticket claim
         </a>
       </div>
       {onReset ? (

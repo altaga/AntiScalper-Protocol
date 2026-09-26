@@ -98,11 +98,11 @@ export function DemoV1Page() {
       <div style={styles.stage}>
         <main style={styles.main}>
           <section style={styles.hero}>
-            <p style={styles.eyebrow}>{RELEASE_LABEL} · backup path</p>
+            <p style={styles.eyebrow}>{RELEASE_LABEL} · direct claim</p>
             <h1 style={styles.title}>{DEVICE_LABEL}</h1>
             <p style={styles.lede}>
-              No ticket needed. Confirm with World ID on this PC, pay with Slush on your phone,
-              then the machine releases one capsule.
+              No pre-ticket path. Prove you are human with World ID, pay USDC on Sui via Slush,
+              then the machine releases one capsule — still one human, one unit.
             </p>
           </section>
 
@@ -111,10 +111,10 @@ export function DemoV1Page() {
               <div style={styles.deniedHero} role="alert" aria-label="Claim blocked">
                 <div style={styles.deniedIcon}>✕</div>
                 <div style={styles.deniedEyebrow}>Already claimed</div>
-                <h2 style={styles.deniedTitle}>You cannot claim again</h2>
+                <h2 style={styles.deniedTitle}>This human already claimed</h2>
                 <p style={styles.deniedLede}>
-                  This World ID already redeemed a capsule for this release. One person · one
-                  capsule — the machine stays locked.
+                  Asp already released a capsule for this World ID on this release. One human ·
+                  one unit — the machine stays locked.
                 </p>
                 <div style={styles.deniedBadge}>No second claim</div>
                 {flow.errorDetail ? <p style={styles.deniedDetail}>{flow.errorDetail}</p> : null}

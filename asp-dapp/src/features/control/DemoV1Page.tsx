@@ -332,6 +332,8 @@ export function DemoV1Page() {
           onOpenChange={flow.setWorldOpen}
           action={flow.worldAction}
           signal={flow.worldSignal}
+          successTitle="World validated"
+          successSubtitle="Identity confirmed. Close this panel to continue to pay."
           onVerified={async (result) => {
             try {
               const out = await flow.onWorldProof(result);

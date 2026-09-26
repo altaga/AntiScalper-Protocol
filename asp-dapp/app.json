@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "asp-dapp",
-    "slug": "asp-dapp",
+    "slug": "asp",
     "scheme": "asp-dapp",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -12,7 +12,7 @@
     },
     "android": {
       "adaptiveIcon": {
-                "backgroundColor": "#000000",
+        "backgroundColor": "#000000",
         "foregroundImage": "./assets/android-icon-foreground.png",
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
@@ -41,7 +41,7 @@
         "root": "./src/app"
       },
       "eas": {
-        "projectId": "26e5e6cb-0639-4b42-a6ed-5e5bd3b50d86"
+        "projectId": "fec7050b-75d2-4b6a-ac55-071ac5f594a8"
       }
     },
     "owner": "altaga"

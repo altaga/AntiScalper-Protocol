@@ -40,7 +40,9 @@ export async function verifyProofOfHuman(
   idkitResponse: unknown,
   opts?: { action?: string; signal?: string; ticket?: string }
 ) {
-  const res = await fetch(`${gatewayBaseUrl()}/asp/proof-of-human/verify`, {
+  // Verify on this dapp (staging token), then authorize on gateway — never rely on
+  // gateway's World portal token (goes stale whenever the portal window is refreshed).
+  const res = await fetch(`/api/world/poh-verify`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({

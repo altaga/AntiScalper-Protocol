@@ -161,7 +161,7 @@ export function useDemoV1Flow() {
         setActivePoh(updated);
         setPhase('authorized');
         setErrorDetail(null);
-        setWorldOpen(false);
+        // Keep World ✓ modal open for the demo — pay QR still starts underneath.
         setStatusText('Identity confirmed. Creating pay QR for your phone…');
         void startQrPay(updated.petition_id);
         return { ok: true as const, claimAlreadyUsed: false as const };

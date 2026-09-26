@@ -120,6 +120,127 @@ export function createPolicyRouter() {
     return res.json({ ok: true, petition: publicPetition(petition) });
   });
 
+  // POST /asp/proof-of-human/authorize-preverified
+  // Dapp already verified with World (staging token). Authorize petition without a second portal call.
+  router.post('/asp/proof-of-human/authorize-preverified', (req, res) => {
+    const body = req.body || {};
+    if (!body.preverified) {
+      return res.status(400).json({ ok: false, error: 'preverified-required' });
+    }
+    const petition_id = typeof body.petition_id === 'string' ? body.petition_id.trim() : '';
+    const ticket =
+      typeof body.ticket === 'string' ? body.ticket.trim().toUpperCase() : '';
+    const nullifier =
+      typeof body.nullifier === 'string' && body.nullifier.trim()
+        ? body.nullifier.trim()
+        : '';
+    const session_id =
+      typeof body.session_id === 'string' && body.session_id.trim()
+        ? body.session_id.trim()
+        : '';
+
+    if (!petition_id) {
+      return res.status(400).json({ ok: false, error: 'missing-petition_id' });
+    }
+    const petition = getPetition(petition_id);
+    if (!petition) {
+      return res.status(404).json({ ok: false, error: 'petition-not-found' });
+    }
+    if (!petition.proof_of_human?.required) {
+      return res.json({ ok: true, petition: publicPetition(petition), note: 'poh-not-required' });
+    }
+
+    const signal =
+      body.signal != null ? String(body.signal) : petition.petition_id || '';
+    if (signal && signal !== petition.petition_id) {
+      return res.status(403).json({
+        ok: false,
+        error: 'signal-mismatch',
+        detail: 'World signal must equal this petition_id.',
+        petition: publicPetition(petition),
+      });
+    }
+
+    if (ticket) {
+      const winnerGate = assertWinnerCanClaim({
+        ticket,
+        ...(session_id ? { session_id } : {}),
+        ...(nullifier ? { nullifier } : {}),
+      });
+      if (!winnerGate.ok) {
+        return res.status(403).json({
+          ok: false,
+          error: winnerGate.error,
+          detail:
+            winnerGate.error === 'already-claimed'
+              ? 'This winner ticket already redeemed a capsule.'
+              : winnerGate.error === 'nullifier-mismatch'
+                ? 'World ID does not match the person who registered this ticket.'
+                : 'Winner ticket is not eligible.',
+          winner: publicWinner(winnerGate.winner),
+          petition: publicPetition(petition),
+        });
+      }
+
+      const auth = authorizePetition(petition_id, {
+        nullifier: winnerGate.winner.nullifier,
+        subject_ref: winnerGate.winner.ticket,
+      });
+      if (!auth.ok) {
+        return res.status(403).json({
+          ok: false,
+          error: auth.error,
+          detail: auth.error || 'Authorization failed',
+          petition: publicPetition(auth.petition),
+        });
+      }
+      if (auth.petition) auth.petition.winner_ticket = ticket;
+      return res.json({
+        ok: true,
+        mode: 'winner-preverified',
+        winner: publicWinner(winnerGate.winner),
+        petition: publicPetition(auth.petition),
+        next: {
+          step: 'hire',
+          message: 'Winner verified. Pay via Slush QR / POST /asp/kiosk/complete.',
+        },
+      });
+    }
+
+    if (!nullifier) {
+      return res.status(400).json({
+        ok: false,
+        error: 'missing-nullifier',
+        detail: 'preverified authorize requires nullifier when no ticket.',
+      });
+    }
+    const auth = authorizePetition(petition_id, {
+      nullifier,
+      subject_ref: nullifier,
+    });
+    if (!auth.ok) {
+      const claimUsed = auth.error === 'claim-already-used';
+      return res.status(403).json({
+        ok: false,
+        error: auth.error,
+        detail: claimUsed
+          ? 'This human already claimed this release (one person, one capsule). Motor stays idle.'
+          : auth.error || 'Authorization failed',
+        claim_already_used: claimUsed,
+        petition: publicPetition(auth.petition),
+      });
+    }
+    return res.json({
+      ok: true,
+      mode: 'uniqueness-preverified',
+      petition: publicPetition(auth.petition),
+      next: {
+        step: 'hire',
+        message: 'Authorized. Pay via Slush QR / POST /asp/kiosk/complete.',
+      },
+    });
+  });
+
   // POST /asp/proof-of-human/verify — server validates World → authorized
   // Kiosk winners path: ticket + session proof + signal=petition_id (World ID 4.0 return).
   router.post('/asp/proof-of-human/verify', async (req, res) => {

@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Fail-closed World ID verify. Never treat client onSuccess alone as auth.
  * World ID 4.0 docs: POST /api/v4/verify/{rp_id} with IDKit payload as-is.
  */

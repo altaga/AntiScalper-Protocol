@@ -87,8 +87,8 @@ export function AspDemoFooter({ onReset, resetBusy, resetLabel = 'Reset demo' }:
         <span style={styles.dot} aria-hidden>
           ·
         </span>
-        <a href="/v1" style={styles.footerLink} title="Claim without a pre-issued ticket">
-          No-ticket claim
+        <a href="/v1" style={styles.footerLink} title="Claim without a ticket">
+          No ticket?
         </a>
       </div>
       {onReset ? (

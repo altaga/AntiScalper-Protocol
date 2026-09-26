@@ -101,8 +101,8 @@ export function DemoV1Page() {
             <p style={styles.eyebrow}>{RELEASE_LABEL} · direct claim</p>
             <h1 style={styles.title}>{DEVICE_LABEL}</h1>
             <p style={styles.lede}>
-              No pre-ticket path. Prove you are human with World ID, pay USDC on Sui via Slush,
-              then the machine releases one capsule — still one human, one unit.
+              No ticket needed. Confirm with World ID, pay with Slush on your phone, then one
+              capsule comes out — still one person, one capsule.
             </p>
           </section>
 

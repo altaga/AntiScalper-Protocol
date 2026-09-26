@@ -115,15 +115,15 @@ export function CheckoutPage() {
             <p style={styles.eyebrow}>{RELEASE_LABEL}</p>
             <h1 style={styles.title}>{DEVICE_LABEL}</h1>
             <p style={styles.lede}>
-              Claim is where entitlement meets payment. Enter your ticket, prove you are the
-              same human with World ID, pay USDC on Sui via Slush — then the machine releases
-              one capsule. Once.
+              Enter your ticket, confirm you&apos;re the same person with World ID, pay with
+              Slush on your phone — then one capsule comes out. Same ticket can&apos;t claim
+              twice.
             </p>
           </header>
 
           <section style={styles.panel} aria-label="Checkout">
             <label style={styles.fieldLabel} htmlFor="asp-ticket">
-              Your ticket
+              Ticket code
             </label>
             <div style={styles.ticketRow}>
               <input
@@ -159,23 +159,23 @@ export function CheckoutPage() {
             {flow.alreadyClaimed ? (
               <div style={styles.claimedHero} role="alert" aria-label="Ticket already claimed">
                 <div style={styles.claimedEyebrow}>Already claimed</div>
-                <h2 style={styles.claimedTitle}>This ticket cannot claim again</h2>
+                <h2 style={styles.claimedTitle}>This ticket already claimed</h2>
                 <p style={styles.claimedLede}>
                   {flow.ticket ? (
                     <>
-                      <strong>{flow.ticket}</strong> already redeemed its capsule. Asp enforces
-                      one human · one ticket · one unit — no second claim.
+                      <strong>{flow.ticket}</strong> already got its capsule. One person, one
+                      ticket, one capsule — no second try.
                     </>
                   ) : (
                     <>
-                      This ticket already redeemed its capsule. Asp enforces one human · one
-                      ticket · one unit — no second claim.
+                      This ticket already got its capsule. One person, one ticket, one capsule —
+                      no second try.
                     </>
                   )}
                 </p>
                 <div style={styles.claimedBadge}>No second claim</div>
                 <p style={styles.claimedHint}>
-                  Enter a different unused ticket above and tap Continue to verify that person.
+                  Put a different unused ticket above and tap Continue.
                 </p>
               </div>
             ) : (
@@ -187,7 +187,7 @@ export function CheckoutPage() {
               </p>
             ) : (
               <p style={styles.ticketStatus}>
-                No ticket yet — enroll first with Get if you need a code.
+                No ticket yet — get one first if you need a code.
               </p>
             )}
 
@@ -251,10 +251,10 @@ export function CheckoutPage() {
 
             {flow.phase === 'awaiting_phone_pay' && flow.kioskPay ? (
               <div style={styles.payBox} aria-label="Phone pay QR">
-                <div style={styles.payTitle}>Pay on Sui</div>
+                <div style={styles.payTitle}>Pay on your phone</div>
                 <p style={styles.payHint}>
-                  Scan with Slush on your phone. World ID already verified here — settlement
-                  waits on a real Payment Kit receipt before the machine moves.
+                  Open Slush and scan this QR. You&apos;re already verified here — payment is
+                  only on the phone.
                 </p>
                 <div style={styles.qrWrap}>
                   <PayQr value={flow.kioskPay.payUrl} size={256} />
@@ -369,9 +369,9 @@ export function CheckoutPage() {
         action={flow.enrollAction}
         signal={flow.activePoh?.petition_id || undefined}
         title="Confirm it's you"
-        subtitle="Same World ID as enrollment. Asp unlocks payment only when the human matches the ticket."
-        successTitle="Human confirmed"
-        successSubtitle="Close this to continue to Sui payment."
+        subtitle="Same World ID as when you got the ticket. That unlocks payment for one capsule."
+        successTitle="Confirmed"
+        successSubtitle="Close this to pay."
         onVerified={async (result) => {
           try {
             const out = await flow.onWorldProof(result);

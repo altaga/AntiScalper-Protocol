@@ -145,7 +145,7 @@ export function useCheckoutFlow() {
         if (petition?.status === 'pending_human' || next?.step === 'proof_of_human') {
           setPhase('awaiting_human');
           setStatusText(
-            'Confirm you are the same human who enrolled — then pay on Sui to release the capsule.'
+            'Confirm you’re the same person who got this ticket — then pay to release the capsule.'
           );
         } else {
           setPhase('authorized');

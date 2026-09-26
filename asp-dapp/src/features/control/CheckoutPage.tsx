@@ -79,8 +79,9 @@ export function CheckoutPage() {
     (flow.phase === 'idle' ||
       flow.phase === 'error' ||
       flow.phase === 'revoked' ||
-      flow.phase === 'denied' ||
-      flow.phase === 'done');
+      flow.phase === 'denied');
+
+  // After a successful claim the ticket is burned — no "Start claim again" on Done.
 
   const canVerify =
     !flow.busy &&
@@ -121,6 +122,39 @@ export function CheckoutPage() {
           </header>
 
           <section style={styles.panel} aria-label="Checkout">
+            {flow.alreadyClaimed ? (
+              <div style={styles.claimedHero} role="alert" aria-label="Ticket already claimed">
+                <div style={styles.claimedEyebrow}>Already claimed</div>
+                <h2 style={styles.claimedTitle}>You cannot claim this ticket again</h2>
+                <p style={styles.claimedLede}>
+                  {flow.ticket ? (
+                    <>
+                      <strong>{flow.ticket}</strong> already redeemed one capsule. One ticket ·
+                      one person · one capsule — no second claim.
+                    </>
+                  ) : (
+                    <>
+                      This ticket already redeemed one capsule. One ticket · one person · one
+                      capsule — no second claim.
+                    </>
+                  )}
+                </p>
+                <div style={styles.claimedBadge}>No second claim</div>
+                <button
+                  type="button"
+                  style={styles.primary}
+                  disabled={flow.busy}
+                  onClick={() => {
+                    clearDemoTicket();
+                    setTicketDraft('');
+                    flow.tryAnotherTicket();
+                  }}
+                >
+                  Enter another ticket
+                </button>
+              </div>
+            ) : (
+              <>
             <label style={styles.fieldLabel} htmlFor="asp-ticket">
               Ticket from Get
             </label>
@@ -183,13 +217,6 @@ export function CheckoutPage() {
                   style={styles.primary}
                   disabled={flow.busy}
                   onClick={() => {
-                    if (
-                      flow.phase === 'done' ||
-                      flow.phase === 'denied' ||
-                      flow.phase === 'revoked'
-                    ) {
-                      flow.reset();
-                    }
                     void flow.requestCapsule();
                   }}
                 >
@@ -334,6 +361,8 @@ export function CheckoutPage() {
                 </div>
               </dl>
             </details>
+              </>
+            )}
           </section>
         </main>
 
@@ -357,7 +386,7 @@ export function CheckoutPage() {
           try {
             const out = await flow.onWorldProof(result);
             if (out?.claimAlreadyUsed) {
-              toast.error('Already claimed — one person, one capsule');
+              toast.error('Already claimed — you cannot claim again');
               return;
             }
             toast.success('Identity confirmed — ready to pay');
@@ -395,6 +424,41 @@ const styles: Record<string, React.CSSProperties> = {
     flex: 1,
   },
   hero: { marginBottom: 20 },
+  claimedHero: {
+    padding: '8px 0 4px',
+  },
+  claimedEyebrow: {
+    margin: 0,
+    fontSize: aspBrand.type.eyebrow,
+    fontWeight: 650,
+    letterSpacing: 0.08,
+    textTransform: 'uppercase' as const,
+    color: '#B42318',
+  },
+  claimedTitle: {
+    margin: '10px 0 10px',
+    fontSize: 26,
+    fontWeight: 700,
+    letterSpacing: -0.6,
+    lineHeight: 1.15,
+  },
+  claimedLede: {
+    margin: '0 0 16px',
+    fontSize: aspBrand.type.lede,
+    lineHeight: 1.5,
+    color: aspBrand.muted,
+  },
+  claimedBadge: {
+    display: 'inline-block',
+    marginBottom: 18,
+    padding: '6px 12px',
+    borderRadius: 980,
+    border: `1px solid ${aspBrand.lineStrong}`,
+    fontSize: 12,
+    fontWeight: 650,
+    letterSpacing: 0.04,
+    textTransform: 'uppercase' as const,
+  },
   eyebrow: {
     margin: 0,
     fontSize: aspBrand.type.eyebrow,

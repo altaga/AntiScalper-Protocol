@@ -167,7 +167,9 @@ export async function POST(request: Request): Promise<Response> {
           ok: false,
           error: gwData?.error || 'authorize-failed',
           detail: gwData?.detail || gwText.slice(0, 300),
-          claim_already_used: Boolean(gwData?.claim_already_used),
+          claim_already_used: Boolean(
+            gwData?.claim_already_used || gwData?.error === 'already-claimed'
+          ),
           gateway: gwData,
           world: verified.world,
         },

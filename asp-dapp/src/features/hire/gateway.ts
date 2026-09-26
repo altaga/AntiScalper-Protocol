@@ -59,7 +59,11 @@ export async function verifyProofOfHuman(
       data?.detail || data?.error || `World verify failed (${res.status})`
     ) as Error & { code?: string; claimAlreadyUsed?: boolean };
     err.code = data?.error;
-    err.claimAlreadyUsed = Boolean(data?.claim_already_used || data?.error === 'claim-already-used');
+    err.claimAlreadyUsed = Boolean(
+      data?.claim_already_used ||
+        data?.error === 'claim-already-used' ||
+        data?.error === 'already-claimed'
+    );
     throw err;
   }
   return data;
@@ -377,9 +381,10 @@ export async function completeKioskCheckout(input: {
   if (!res.ok) {
     const err = new Error(
       data?.detail || data?.error || `Kiosk complete failed (${res.status})`
-    ) as Error & { status?: number; code?: string };
+    ) as Error & { status?: number; code?: string; claimed?: boolean };
     err.status = res.status;
     err.code = data?.error;
+    err.claimed = Boolean(data?.claimed);
     throw err;
   }
   return data as {

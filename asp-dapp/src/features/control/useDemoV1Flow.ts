@@ -173,7 +173,9 @@ export function useDemoV1Flow() {
         ) {
           setPhase('denied');
           setErrorDetail(String(e.message || e));
-          setStatusText('Already claimed — this World ID already got a capsule.');
+          setStatusText(
+            'Already claimed — this World ID already got a capsule. You cannot claim again.'
+          );
           setActivePoh((prev) => (prev ? { ...prev, status: 'denied' as any } : prev));
           setWorldOpen(false);
           return { ok: false as const, claimAlreadyUsed: true as const };
@@ -211,6 +213,29 @@ export function useDemoV1Flow() {
         gateway: opts.gateway ?? kioskPay.receiver,
         payer: opts.payer ?? null,
         raw: opts.raw,
+      });
+      setActivePoh((prev) => (prev ? { ...prev, status: 'used' } : prev));
+      setKioskPay(null);
+      setStatusText(opts.statusText);
+      setErrorDetail(opts.errorDetail ?? null);
+      setBusy(false);
+    };
+
+    const finishDeviceError = (opts: {
+      suiDigest?: string | null;
+      statusText: string;
+      errorDetail?: string | null;
+    }) => {
+      if (abandonComplete.current) return;
+      setPhase('error');
+      setLastHire({
+        tx_id: `qr_${kioskPay.nonce.slice(0, 8)}`,
+        suiDigest: opts.suiDigest ?? null,
+        petition_id: activePoh.petition_id,
+        deviceReceipt: null,
+        gateway: kioskPay.receiver,
+        payer: null,
+        raw: { note: 'device-offline-after-pay', error: opts.errorDetail },
       });
       setActivePoh((prev) => (prev ? { ...prev, status: 'used' } : prev));
       setKioskPay(null);
@@ -261,42 +286,35 @@ export function useDemoV1Flow() {
           if (
             statusCode === 504 ||
             code === 'esp32-no-receipt' ||
-            /receipt timeout/i.test(msg)
+            /receipt timeout|MQTT disconnected/i.test(msg)
           ) {
-            finishDone({
-              tx_id: `qr_${kioskPay.nonce.slice(0, 8)}`,
+            finishDeviceError({
               suiDigest: digest,
-              deviceReceipt: null,
-              gateway: kioskPay.receiver,
-              payer: null,
-              raw: { note: 'dispensed-receipt-timeout', error: msg },
               statusText:
-                'Done. Payment settled and dispense sent — check the tray (receipt was slow).',
+                'Payment settled — claim used. You cannot claim again. The machine did not confirm (offline or timeout).',
               errorDetail: msg,
             });
             return;
           }
 
           if (statusCode === 404 || code === 'payment-not-found') {
-            finishDone({
-              tx_id: `pay_${kioskPay.nonce.slice(0, 8)}`,
-              suiDigest: digest,
-              deviceReceipt: null,
-              gateway: kioskPay.receiver,
-              payer: null,
-              raw: { note: 'paid-on-chain', error: msg },
-              statusText:
-                statusCode === 404
-                  ? 'Payment OK on-chain. Gateway needs /asp/kiosk/complete to release the capsule.'
-                  : msg,
-              errorDetail: msg,
-            });
+            setPhase('error');
+            setErrorDetail(msg);
+            setStatusText(
+              statusCode === 404
+                ? 'Payment OK on-chain. Gateway needs /asp/kiosk/complete to release the capsule.'
+                : msg
+            );
+            setBusy(false);
+            completeInFlight.current = false;
             return;
           }
 
           setPhase('error');
           setErrorDetail(msg);
-          setStatusText('Payment seen but capsule failed. Use Reset demo before trying again.');
+          setStatusText(
+            'Payment settled — claim used. You cannot claim again. Capsule release failed.'
+          );
           setBusy(false);
           completeInFlight.current = false;
         }

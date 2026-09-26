@@ -109,20 +109,20 @@ export function DemoV1Page() {
               <div style={styles.deniedHero} role="alert" aria-label="Claim blocked">
                 <div style={styles.deniedIcon}>✕</div>
                 <div style={styles.deniedEyebrow}>Already claimed</div>
-                <h2 style={styles.deniedTitle}>One person, one capsule</h2>
+                <h2 style={styles.deniedTitle}>You cannot claim again</h2>
                 <p style={styles.deniedLede}>
-                  This World ID already redeemed a capsule for this release. The machine stays
-                  locked — use Reset demo only if you&apos;re rehearsing the flow again.
+                  This World ID already redeemed a capsule for this release. One person · one
+                  capsule — the machine stays locked.
                 </p>
                 <div style={styles.deniedBadge}>No second claim</div>
                 {flow.errorDetail ? <p style={styles.deniedDetail}>{flow.errorDetail}</p> : null}
                 <button
                   type="button"
                   style={styles.deniedReset}
-                  disabled={flow.busy || resetting}
-                  onClick={() => void onResetDemo()}
+                  disabled={flow.busy}
+                  onClick={() => flow.reset()}
                 >
-                  {resetting ? 'Resetting…' : 'Reset demo to try again'}
+                  Start over
                 </button>
               </div>
             ) : (

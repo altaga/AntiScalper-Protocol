@@ -26,6 +26,8 @@ export function useCheckoutFlow() {
   const [errorDetail, setErrorDetail] = useState<string | null>(null);
   const [ticket, setTicket] = useState('');
   const [ticketReady, setTicketReady] = useState(false);
+  /** Ticket (or World) already redeemed — block claim UI; user can try another ticket. */
+  const [alreadyClaimed, setAlreadyClaimed] = useState(false);
   const [activePoh, setActivePoh] = useState<PohCardPayload | null>(null);
   const [worldOpen, setWorldOpen] = useState(false);
   const [kioskPay, setKioskPay] = useState<{
@@ -87,6 +89,7 @@ export function useCheckoutFlow() {
     const t = String(raw || '').trim().toUpperCase();
     setTicket(t);
     setTicketReady(false);
+    setAlreadyClaimed(false);
     setErrorDetail(null);
     if (!t) return;
     try {
@@ -97,11 +100,14 @@ export function useCheckoutFlow() {
         return;
       }
       if (data.winner.claimed_at) {
-        setErrorDetail('This ticket already claimed a capsule.');
-        setStatusText('Already redeemed — one ticket, one capsule.');
+        setAlreadyClaimed(true);
+        setPhase('denied');
+        setErrorDetail(null);
+        setStatusText('This ticket was already claimed. You cannot claim it again.');
         return;
       }
       setTicketReady(true);
+      setPhase('idle');
       setStatusText(`Ticket ${t} ready. Tap Start claim, then confirm with World ID.`);
     } catch (e: any) {
       setErrorDetail(String(e?.message || e));
@@ -215,8 +221,10 @@ export function useCheckoutFlow() {
           e?.code === 'already-claimed'
         ) {
           setPhase('denied');
-          setErrorDetail(String(e.message || e));
-          setStatusText('Already claimed — this ticket already got a capsule.');
+          setAlreadyClaimed(true);
+          setErrorDetail(null);
+          setStatusText('This ticket was already claimed. You cannot claim it again.');
+          setTicketReady(false);
           setWorldOpen(false);
           return { ok: false as const, claimAlreadyUsed: true as const };
         }
@@ -256,6 +264,33 @@ export function useCheckoutFlow() {
       });
       setActivePoh((prev) => (prev ? { ...prev, status: 'used' } : prev));
       setKioskPay(null);
+      setTicketReady(false);
+      setStatusText(opts.statusText);
+      setErrorDetail(opts.errorDetail ?? null);
+      setBusy(false);
+    };
+
+    const finishDeviceError = (opts: {
+      suiDigest?: string | null;
+      statusText: string;
+      errorDetail?: string | null;
+    }) => {
+      if (abandonComplete.current) return;
+      // Ticket is burned on the gateway once payment settles — don't fake Done.
+      setPhase('denied');
+      setLastHire({
+        tx_id: `qr_${kioskPay.nonce.slice(0, 8)}`,
+        suiDigest: opts.suiDigest ?? null,
+        petition_id: activePoh.petition_id,
+        deviceReceipt: null,
+        gateway: kioskPay.receiver,
+        payer: null,
+        raw: { note: 'device-offline-after-pay', error: opts.errorDetail },
+      });
+      setActivePoh((prev) => (prev ? { ...prev, status: 'used' } : prev));
+      setKioskPay(null);
+      setTicketReady(false);
+      setAlreadyClaimed(true);
       setStatusText(opts.statusText);
       setErrorDetail(opts.errorDetail ?? null);
       setBusy(false);
@@ -300,47 +335,43 @@ export function useCheckoutFlow() {
           const code = e?.code || '';
           const msg = String(e?.message || e);
 
-          // Motor often runs before MQTT receipt arrives — don't leave UI stuck / don't re-fire.
+          // Payment settled; motor offline/timeout. Ticket already burned server-side.
           if (
             statusCode === 504 ||
             code === 'esp32-no-receipt' ||
-            /receipt timeout/i.test(msg)
+            /receipt timeout|MQTT disconnected/i.test(msg)
           ) {
-            finishDone({
-              tx_id: `qr_${kioskPay.nonce.slice(0, 8)}`,
+            finishDeviceError({
               suiDigest: digest,
-              deviceReceipt: null,
-              gateway: kioskPay.receiver,
-              payer: null,
-              raw: { note: 'dispensed-receipt-timeout', error: msg },
               statusText:
-                'Done. Payment settled and dispense sent — check the tray (receipt was slow).',
+                'Payment settled — this ticket is used and cannot be claimed again. The machine did not confirm (offline or timeout).',
               errorDetail: msg,
             });
+            setAlreadyClaimed(true);
             return;
           }
 
           if (statusCode === 404 || code === 'payment-not-found') {
-            finishDone({
-              tx_id: `pay_${kioskPay.nonce.slice(0, 8)}`,
-              suiDigest: digest,
-              deviceReceipt: null,
-              gateway: kioskPay.receiver,
-              payer: null,
-              raw: { note: 'paid-on-chain', error: msg },
-              statusText:
-                statusCode === 404
-                  ? 'Payment OK on-chain. Gateway needs /asp/kiosk/complete to release the capsule.'
-                  : msg,
-              errorDetail: msg,
-            });
+            setPhase('error');
+            setErrorDetail(msg);
+            setStatusText(
+              statusCode === 404
+                ? 'Payment OK on-chain. Gateway needs /asp/kiosk/complete to release the capsule.'
+                : msg
+            );
+            setBusy(false);
+            completeInFlight.current = false;
             return;
           }
 
           // Real failure — surface error; do not auto-retry (avoids double dispense).
           setPhase('error');
           setErrorDetail(msg);
-          setStatusText('Payment seen but capsule failed. Use Reset demo before trying again.');
+          setTicketReady(false);
+          setAlreadyClaimed(true);
+          setStatusText(
+            'Payment settled — this ticket is used and cannot be claimed again. Capsule release failed.'
+          );
           setBusy(false);
           completeInFlight.current = false;
         }
@@ -392,7 +423,26 @@ export function useCheckoutFlow() {
     setBusy(false);
     setTicket('');
     setTicketReady(false);
+    setAlreadyClaimed(false);
     setStatusText('Enter your ticket from Get, then tap Use ticket.');
+  }, []);
+
+  /** Clear this ticket so someone else can type a different WIN-… (does not wipe the demo store). */
+  const tryAnotherTicket = useCallback(() => {
+    pollStop.current = true;
+    completeInFlight.current = false;
+    abandonComplete.current = true;
+    setPhase('idle');
+    setActivePoh(null);
+    setWorldOpen(false);
+    setLastHire(null);
+    setKioskPay(null);
+    setErrorDetail(null);
+    setBusy(false);
+    setTicket('');
+    setTicketReady(false);
+    setAlreadyClaimed(false);
+    setStatusText('Enter a different ticket from Get, then tap Use ticket.');
   }, []);
 
   const retryQr = useCallback(() => {
@@ -400,18 +450,21 @@ export function useCheckoutFlow() {
     void startQrPay(activePoh.petition_id);
   }, [activePoh, startQrPay]);
 
-  // Safety net: if complete hangs after motor already ran, don't leave the kiosk on Working…
+  // Safety net: if complete hangs, don't leave the kiosk on Working…
   useEffect(() => {
     if (phase !== 'executing') return;
     const id = setTimeout(() => {
       if (abandonComplete.current) return;
-      setPhase('done');
+      setPhase('error');
       setBusy(false);
-      setStatusText(
-        'Done. Capsule command was sent — check the tray (screen waited too long for a receipt).'
-      );
+      setTicketReady(false);
+      setAlreadyClaimed(true);
       setKioskPay(null);
       setActivePoh((prev) => (prev ? { ...prev, status: 'used' } : prev));
+      setStatusText(
+        'Timed out waiting for the machine. If you already paid, this ticket is used and cannot be claimed again.'
+      );
+      setErrorDetail('complete-timeout');
     }, 45_000);
     return () => clearTimeout(id);
   }, [phase]);
@@ -425,6 +478,7 @@ export function useCheckoutFlow() {
     setTicket,
     loadTicket,
     ticketReady,
+    alreadyClaimed,
     enrollAction: ENROLL_ACTION,
     activePoh,
     worldOpen,
@@ -437,5 +491,6 @@ export function useCheckoutFlow() {
     retryQr,
     revoke,
     reset,
+    tryAnotherTicket,
   };
 }

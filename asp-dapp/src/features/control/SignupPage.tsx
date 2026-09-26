@@ -16,6 +16,8 @@ export function SignupPage() {
   const [phase, setPhase] = useState<Phase>('ready');
   const [worldOpen, setWorldOpen] = useState(false);
   const [ticket, setTicket] = useState<string | null>(null);
+  const [alreadyEnrolled, setAlreadyEnrolled] = useState(false);
+  const [alreadyClaimed, setAlreadyClaimed] = useState(false);
   const [detail, setDetail] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
@@ -29,6 +31,8 @@ export function SignupPage() {
       await resetDemoClaims();
       clearDemoTicket();
       setTicket(null);
+      setAlreadyEnrolled(false);
+      setAlreadyClaimed(false);
       setPhase('ready');
       setDetail(null);
       toast.success('Demo cleared');
@@ -54,11 +58,19 @@ export function SignupPage() {
       });
       const t = out.winner?.ticket;
       if (!t) throw new Error('No ticket returned');
+      const claimed = Boolean(out.winner?.claimed_at);
       saveDemoTicket(t);
       setTicket(t);
+      setAlreadyEnrolled(Boolean(out.already));
+      setAlreadyClaimed(claimed);
       setPhase('done');
-      // Keep World modal open on the ✓ panel for the demo — user closes it.
-      toast.success(out.already ? `Welcome back — ${t}` : `Registered — ${t}`);
+      if (claimed) {
+        toast.error('Already claimed — no second ticket');
+      } else if (out.already) {
+        toast.success(`Welcome back — same ticket ${t}`);
+      } else {
+        toast.success(`Registered — ${t}`);
+      }
     } catch (e: any) {
       setPhase('error');
       const detailMsg = [e?.message, e?.code].filter(Boolean).join(' · ');
@@ -88,30 +100,58 @@ export function SignupPage() {
         <main style={styles.main}>
           {phase === 'done' && ticket ? (
             <>
-              <p style={styles.eyebrow}>You&apos;re registered</p>
-              <h1 style={styles.title}>Save this ticket</h1>
-              <p style={styles.lede}>
-                Copy it or take a photo. At the event kiosk PC, type this code — then confirm
-                again with World ID so the machine knows it&apos;s still you.
-              </p>
+              {alreadyClaimed ? (
+                <div style={styles.claimedBanner} role="alert">
+                  <div style={styles.claimedEyebrow}>Already claimed</div>
+                  <h1 style={styles.title}>You cannot get another ticket</h1>
+                  <p style={styles.lede}>
+                    This World ID already has a winner ticket for this drop, and that ticket
+                    already redeemed a capsule. One person · one ticket · one capsule — no
+                    second claim.
+                  </p>
+                  <section style={styles.pass} aria-label="Your ticket">
+                    <div style={styles.passTop}>
+                      <span style={styles.passEvent}>Tokyo 2026</span>
+                      <span style={styles.passKind}>Used</span>
+                    </div>
+                    <div style={styles.passCode}>{ticket}</div>
+                    <div style={styles.passRule} aria-hidden />
+                    <p style={styles.passHint}>Same ticket as before — not a new one</p>
+                  </section>
+                </div>
+              ) : (
+                <>
+                  <p style={styles.eyebrow}>
+                    {alreadyEnrolled ? 'Welcome back — same ticket' : "You're registered"}
+                  </p>
+                  <h1 style={styles.title}>
+                    {alreadyEnrolled ? 'This is still your ticket' : 'Save this ticket'}
+                  </h1>
+                  <p style={styles.lede}>
+                    {alreadyEnrolled
+                      ? 'World already knows you for this drop. You do not get a second code — bring this same one to the kiosk.'
+                      : "Copy it or take a photo. At the event kiosk PC, type this code — then confirm again with World ID so the machine knows it's still you."}
+                  </p>
 
-              <section style={styles.pass} aria-label="Winner ticket">
-                <div style={styles.passTop}>
-                  <span style={styles.passEvent}>Tokyo 2026</span>
-                  <span style={styles.passKind}>Winner</span>
-                </div>
-                <div style={styles.passCode}>{ticket}</div>
-                <div style={styles.passRule} aria-hidden />
-                <p style={styles.passHint}>One ticket · one capsule · bring the code to the kiosk</p>
-                <div style={styles.passActions}>
-                  <button type="button" style={styles.secondary} onClick={() => void copyTicket()}>
-                    Copy ticket
-                  </button>
-                  <a href="/claim" style={styles.primaryLink}>
-                    Claim
-                  </a>
-                </div>
-              </section>
+                  <section style={styles.pass} aria-label="Winner ticket">
+                    <div style={styles.passTop}>
+                      <span style={styles.passEvent}>Tokyo 2026</span>
+                      <span style={styles.passKind}>Winner</span>
+                    </div>
+                    <div style={styles.passCode}>{ticket}</div>
+                    <div style={styles.passRule} aria-hidden />
+                    <p style={styles.passHint}>One ticket · one capsule · bring the code to the kiosk</p>
+                    <div style={styles.passActions}>
+                      <button type="button" style={styles.secondary} onClick={() => void copyTicket()}>
+                        Copy ticket
+                      </button>
+                      <a href="/claim" style={styles.primaryLink}>
+                        Claim
+                      </a>
+                    </div>
+                  </section>
+                </>
+              )}
             </>
           ) : (
             <>
@@ -223,6 +263,17 @@ const styles: Record<string, React.CSSProperties> = {
     fontSize: aspBrand.type.lede,
     lineHeight: 1.5,
     color: aspBrand.muted,
+  },
+  claimedBanner: {
+    marginTop: 8,
+  },
+  claimedEyebrow: {
+    margin: 0,
+    fontSize: aspBrand.type.eyebrow,
+    fontWeight: 650,
+    letterSpacing: 0.08,
+    textTransform: 'uppercase' as const,
+    color: '#B42318',
   },
   card: {
     marginTop: 28,

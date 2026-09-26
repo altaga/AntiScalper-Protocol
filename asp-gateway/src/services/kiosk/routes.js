@@ -367,16 +367,22 @@ export function createKioskRouter({ dispatch }) {
       });
     }
 
+    // Payment confirmed → burn entitlement now (one ticket, one claim), even if motor fails.
+    if (gate.petition?.petition_id) {
+      markPetitionUsed(gate.petition.petition_id);
+    }
+    if (gate.petition?.winner_ticket) {
+      markWinnerClaimed({
+        ticket: gate.petition.winner_ticket,
+        petition_id: gate.petition.petition_id,
+      });
+    }
+    if (gate.petition && payer && gate.petition.requester !== payer) {
+      gate.petition.requester = payer;
+    }
+
     try {
       const receipt = await dispatch(hireBody, skill);
-      if (gate.petition?.petition_id) {
-        markPetitionUsed(gate.petition.petition_id);
-      }
-
-      // Align petition requester with phone payer when known
-      if (gate.petition && payer && gate.petition.requester !== payer) {
-        gate.petition.requester = payer;
-      }
 
       intent = updateIntent(nonce, {
         status: 'dispensed',
@@ -401,10 +407,20 @@ export function createKioskRouter({ dispatch }) {
         intent: publicIntent(intent),
       });
     } catch (e) {
+      updateIntent(nonce, {
+        status: 'paid',
+        payer,
+        tx_id,
+        paymentTransactionDigest:
+          record.paymentTransactionDigest || intent.paymentTransactionDigest,
+        paid_at: intent.paid_at || nowMs(),
+      });
       return res.status(504).json({
         ok: false,
         error: 'esp32-no-receipt',
         detail: e.message,
+        claimed: true,
+        transaction: record.paymentTransactionDigest || intent.paymentTransactionDigest || null,
       });
     }
   });
@@ -494,20 +510,22 @@ export function createKioskRouter({ dispatch }) {
       });
     }
 
+    // Payment confirmed → burn entitlement now (one ticket, one claim), even if motor fails.
+    if (gate.petition?.petition_id) {
+      markPetitionUsed(gate.petition.petition_id);
+    }
+    if (gate.petition?.winner_ticket) {
+      markWinnerClaimed({
+        ticket: gate.petition.winner_ticket,
+        petition_id: gate.petition.petition_id,
+      });
+    }
+    if (gate.petition && payer && gate.petition.requester !== payer) {
+      gate.petition.requester = payer;
+    }
+
     try {
       const receipt = await dispatch(hireBody, skill);
-      if (gate.petition?.petition_id) {
-        markPetitionUsed(gate.petition.petition_id);
-      }
-      if (gate.petition?.winner_ticket) {
-        markWinnerClaimed({
-          ticket: gate.petition.winner_ticket,
-          petition_id: gate.petition.petition_id,
-        });
-      }
-      if (gate.petition && payer && gate.petition.requester !== payer) {
-        gate.petition.requester = payer;
-      }
 
       // Keep an intent row for idempotency if client retries
       createIntent({
@@ -542,10 +560,29 @@ export function createKioskRouter({ dispatch }) {
         transaction: record.paymentTransactionDigest || null,
       });
     } catch (e) {
+      createIntent({
+        nonce,
+        petition_id,
+        amount,
+        coinType,
+        receiver,
+        registryName: DEFAULT_REGISTRY_NAME,
+        payUrl: body.payUrl || `slush://pay?nonce=${nonce}`,
+        status: 'paid',
+        lab: false,
+        created_at: nowMs(),
+        updated_at: nowMs(),
+        paymentTransactionDigest: record.paymentTransactionDigest || null,
+        payer,
+        tx_id,
+        paid_at: nowMs(),
+      });
       return res.status(504).json({
         ok: false,
         error: 'esp32-no-receipt',
         detail: e.message,
+        claimed: true,
+        transaction: record.paymentTransactionDigest || null,
       });
     }
   });

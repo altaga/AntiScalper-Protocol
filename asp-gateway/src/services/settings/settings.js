@@ -12,7 +12,7 @@ function readJson(pathFromHere) {
 
 const HTTP_HOST = process.env.ASP_GW_HOST || '0.0.0.0';
 const HTTP_PORT = Number(process.env.ASP_GW_HTTP_PORT || 4790);
-const FACILITATOR_URL = process.env.FACILITATOR_URL || 'http://localhost:8085';
+const FACILITATOR_URL = process.env.FACILITATOR_URL || 'https://facilitator.example.com';
 
 const WALRUS_PUBLISHER_URL = process.env.WALRUS_PUBLISHER_URL || '';
 const WALRUS_STORE_ENDPOINT =

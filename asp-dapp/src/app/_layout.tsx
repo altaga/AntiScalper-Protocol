@@ -1,3 +1,4 @@
+// providers order matters
 import { Slot } from 'expo-router';
 import { LogBox } from 'react-native';
 const { getJsonRpcFullnodeUrl: getFullnodeUrl } = require('@mysten/sui/jsonRpc');

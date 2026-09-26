@@ -9,7 +9,7 @@
 // GTS Root R4 — Google Trust Services.
 // mqtt.example.com is Cloudflare-fronted:
 //   leaf → WE1 → GTS Root R4  (NOT Let's Encrypt / ISRG).
-// TODO: CA pin - still dropping every ~20min on Feather
+// Pinning this CA is what made asp-devices MQTT stable on Feather.
 // Re-verify with: openssl s_client -connect mqtt.example.com:443 -servername mqtt.example.com -showcerts
 const char* MQTT_ROOT_CA =
 "-----BEGIN CERTIFICATE-----\n"

@@ -126,7 +126,7 @@ export async function POST(request: Request): Promise<Response> {
       );
     }
 
-    // Same auth path as asp-dapp-simulator: native Bedrock bearer env + fetch handler for EAS Workers.
+    // Bedrock bearer env + fetch handler (EAS Workers / Expo API routes).
     process.env.AWS_BEARER_TOKEN_BEDROCK = bearerToken;
 
     const bedrockClient = new BedrockRuntimeClient({

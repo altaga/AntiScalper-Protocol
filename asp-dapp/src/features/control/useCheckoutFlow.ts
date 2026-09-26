@@ -21,7 +21,7 @@ export function useCheckoutFlow() {
   const [phase, setPhase] = useState<ChatPhase>('idle');
   const [busy, setBusy] = useState(false);
   const [statusText, setStatusText] = useState(
-    'Enter your winner ticket from Get ticket, then tap Use ticket.'
+    'Enter your ticket from Get, then tap Use ticket.'
   );
   const [errorDetail, setErrorDetail] = useState<string | null>(null);
   const [ticket, setTicket] = useState('');
@@ -93,7 +93,7 @@ export function useCheckoutFlow() {
       const data = await getWinner(t);
       if (!data.winner) {
         setErrorDetail('Unknown ticket.');
-        setStatusText('Unknown ticket — open Get ticket on your phone and register first.');
+        setStatusText('Unknown ticket — open Get on your phone and register first.');
         return;
       }
       if (data.winner.claimed_at) {
@@ -105,7 +105,7 @@ export function useCheckoutFlow() {
       setStatusText(`Ticket ${t} ready. Tap Start claim, then confirm with World ID.`);
     } catch (e: any) {
       setErrorDetail(String(e?.message || e));
-      setStatusText('Unknown ticket — open Get ticket on your phone and register first.');
+      setStatusText('Unknown ticket — open Get on your phone and register first.');
     }
   }, []);
 
@@ -113,7 +113,7 @@ export function useCheckoutFlow() {
     if (busy) return;
     const t = ticket.trim().toUpperCase();
     if (!t) {
-      setErrorDetail('Enter your winner ticket from Get ticket first.');
+      setErrorDetail('Enter your ticket from Get first.');
       setStatusText('Ticket required before you can claim.');
       return;
     }
@@ -152,7 +152,7 @@ export function useCheckoutFlow() {
         setActivePoh(poh);
         setPhase('awaiting_human');
         setStatusText(
-          'Next: confirm with World ID (same person as Get ticket), then pay on your phone.'
+          'Next: confirm with World ID (same person as Get), then pay on your phone.'
         );
       } else {
         const poh: PohCardPayload = {
@@ -392,7 +392,7 @@ export function useCheckoutFlow() {
     setBusy(false);
     setTicket('');
     setTicketReady(false);
-    setStatusText('Enter your winner ticket from Get ticket, then tap Use ticket.');
+    setStatusText('Enter your ticket from Get, then tap Use ticket.');
   }, []);
 
   const retryQr = useCallback(() => {

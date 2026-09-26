@@ -20,7 +20,7 @@ export function SignupPage() {
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
-    document.title = 'Asp · Sign up';
+    document.title = 'Asp · Get';
   }, []);
 
   const onReset = async () => {
@@ -62,8 +62,8 @@ export function SignupPage() {
     } catch (e: any) {
       setPhase('error');
       const detailMsg = [e?.message, e?.code].filter(Boolean).join(' · ');
-      setDetail(detailMsg || 'Sign up failed');
-      toast.error(detailMsg || 'Sign up failed');
+      setDetail(detailMsg || 'Get failed');
+      toast.error(detailMsg || 'Get failed');
       throw e;
     } finally {
       setBusy(false);
@@ -107,8 +107,8 @@ export function SignupPage() {
                   <button type="button" style={styles.secondary} onClick={() => void copyTicket()}>
                     Copy ticket
                   </button>
-                  <a href="/" style={styles.primaryLink}>
-                    Go to kiosk
+                  <a href="/claim" style={styles.primaryLink}>
+                    Claim
                   </a>
                 </div>
               </section>

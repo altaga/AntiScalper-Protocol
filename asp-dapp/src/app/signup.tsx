@@ -1,5 +1,6 @@
-import { SignupPage } from '../features/control/SignupPage';
+import { Redirect } from 'expo-router';
 
+/** Legacy /signup → home (Get ticket is now `/`). */
 export default function SignupRoute() {
-  return <SignupPage />;
+  return <Redirect href="/" />;
 }

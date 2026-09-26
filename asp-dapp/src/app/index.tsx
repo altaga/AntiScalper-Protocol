@@ -1,7 +1,7 @@
 ﻿import React from 'react';
-import { CheckoutPage } from '../features/control/CheckoutPage';
+import { SignupPage } from '../features/control/SignupPage';
 
-/** Asp control — human checkout for the limited gacha release. */
+/** Base demo state — get a winner ticket before the kiosk. */
 export default function AspHomePage() {
-  return <CheckoutPage />;
+  return <SignupPage />;
 }

@@ -47,30 +47,30 @@ export function AspDemoChrome({ active }: ChromeProps) {
   return (
     <header style={styles.header}>
       <div style={styles.inner}>
-        <a href={active === 'kiosk' ? '/' : '/signup'} style={styles.brand} aria-label="Asp">
+        <a href="/" style={styles.brand} aria-label="Asp">
           <img src={logoDark} alt="Asp" style={styles.logo} />
         </a>
 
         <nav style={styles.nav} aria-label="Primary">
           <a
-            href="/signup"
+            href="/"
             aria-current={active === 'signup' ? 'page' : undefined}
             style={{
               ...styles.tab,
               ...(active === 'signup' ? styles.tabOn : null),
             }}
           >
-            Get ticket
+            Get
           </a>
           <a
-            href="/"
+            href="/claim"
             aria-current={active === 'kiosk' ? 'page' : undefined}
             style={{
               ...styles.tab,
               ...(active === 'kiosk' ? styles.tabOn : null),
             }}
           >
-            Claim capsule
+            Claim
           </a>
         </nav>
       </div>

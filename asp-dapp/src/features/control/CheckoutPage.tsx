@@ -42,7 +42,7 @@ export function CheckoutPage() {
   const autoFilled = React.useRef(false);
 
   React.useEffect(() => {
-    document.title = 'Asp · Kiosk';
+    document.title = 'Asp · Claim';
   }, []);
 
   React.useEffect(() => {
@@ -102,7 +102,7 @@ export function CheckoutPage() {
 
   const statusLine =
     flow.phase === 'idle' && !flow.ticket
-      ? 'Type the ticket from Get ticket (Sign up), then tap Use ticket.'
+      ? 'Type your ticket from Get, then tap Use ticket.'
       : flow.statusText;
 
   return (
@@ -122,7 +122,7 @@ export function CheckoutPage() {
 
           <section style={styles.panel} aria-label="Checkout">
             <label style={styles.fieldLabel} htmlFor="asp-ticket">
-              Winner ticket from Sign up
+              Ticket from Get
             </label>
             <div style={styles.ticketRow}>
               <input
@@ -163,7 +163,7 @@ export function CheckoutPage() {
               </p>
             ) : (
               <p style={styles.ticketStatus}>
-                No ticket yet — open Get ticket on your phone if you don&apos;t have a code.
+                No ticket yet — open Get on your phone if you don&apos;t have a code.
               </p>
             )}
 
@@ -240,7 +240,7 @@ export function CheckoutPage() {
                   — payment happens on the phone only.
                 </p>
                 <div style={styles.qrWrap}>
-                  <PayQr value={flow.kioskPay.payUrl} size={212} />
+                  <PayQr value={flow.kioskPay.payUrl} size={256} />
                 </div>
                 <div style={styles.payLinks}>
                   <a href={flow.kioskPay.payUrl} style={styles.link}>
@@ -352,7 +352,7 @@ export function CheckoutPage() {
         title="Confirm it's you"
         subtitle="Same World ID as when you got your ticket. This unlocks payment for one capsule."
         successTitle="World validated"
-        successSubtitle="Same person as Get ticket. Close this panel to continue to pay."
+        successSubtitle="Same person as Get. Close this panel to continue to pay."
         onVerified={async (result) => {
           try {
             const out = await flow.onWorldProof(result);
@@ -538,9 +538,10 @@ const styles: Record<string, React.CSSProperties> = {
   },
   qrWrap: {
     display: 'inline-block',
-    padding: 10,
-    background: '#fff',
-    borderRadius: 14,
+    // Extra white pad outside the QR quiet zone so UI chrome never crowds finders.
+    padding: 16,
+    background: '#FFFFFF',
+    borderRadius: 8,
     border: `1px solid ${aspBrand.line}`,
   },
   payLinks: {

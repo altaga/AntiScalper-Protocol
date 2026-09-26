@@ -6,8 +6,8 @@ export type AspRoute = 'signup' | 'kiosk' | 'v1';
 /** Demo brand — monochrome protocol. No rental-lime, no Apple blue. */
 export const aspBrand = {
   ink: '#111111',
-  /** Match logo-dark.png letter fill (#000) so the mark doesn't float on a different black. */
-  header: '#000000',
+  /** Match logo-dark.png canvas (#090909) so the mark doesn't float on a different black. */
+  header: '#090909',
   paper: '#FAFAFA',
   paperCard: '#FFFFFF',
   line: 'rgba(17,17,17,0.1)',

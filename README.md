@@ -4,7 +4,7 @@
   <img src="images/logofinal.png" alt="Asp" width="42%"/>
 </div>
 
-**Fair physical releases when agents can buy.**
+**Machines you can hire on Sui. Drops scalpers can't steal.**
 
 ETHGlobal Tokyo 2026 · Partner slots: **World** + **Sui**
 
@@ -14,26 +14,41 @@ ETHGlobal Tokyo 2026 · Partner slots: **World** + **Sui**
 
 </div>
 
-One eligible human. One capsule. Real motor. Payment alone is not enough — Asp answers *who*, *what*, and *once* before anything spins.
+Asp puts real hardware on a paid HTTP rail. Agents hire machines with **x402**.  
+When the release is scarce, the machine flips the other switch: **World Proof of Human** — then the human pays on Sui and the motor spins once.
 
 ---
 
 ## The problem
 
-A limited merch drop. Fans want an agent to grab a capsule. Scalpers want the same.
+Limited capsule. Fans in line. Bots and wallets in the same line.
 
-| Question | Why USDC alone fails |
+Money alone answers *paid?* — never *who?* or *already claimed?*
+
+| Question | Why a naked pay fails |
 |---|---|
-| **Who is entitled?** | A wallet is not a person |
-| **What may they buy?** | One unit from *this* machine, this release |
-| **Has it been used?** | Second wallet / agent / retry must fail |
+| **Who?** | A hot wallet is not a person |
+| **What?** | One unit from *this* machine, this release |
+| **Once?** | Second face / second wallet / retry must die |
 
-Asp’s answer is two load-bearing sponsors:
+Asp’s answer is two sponsors sharing one stack:
 
-1. **World** — Proof of Human as the trust event (ticket + claim + agent gate)
-2. **Sui** — programmable settlement the machine can wait on (Payment Kit / Slush + x402)
+1. **World** — the fairness switch (ticket ↔ zk nullifier ↔ same human at claim)
+2. **Sui** — the money rail (**x402** to hire machines · **Payment Kit** when the human settles at the booth)
 
-Remove either rail and “pay → dispense” is just a faster scalper.
+---
+
+## The beat
+
+```text
+Win      World selfie → ticket WIN-… welded to your nullifier
+Claim    Same human. Same nullifier. Or the petition dies.
+Pay      Sui — Slush QR / Payment Kit at the kiosk
+Spin     PaymentReceipt lands → MQTT → one motor turn
+```
+
+**The twist judges should feel:** machines on Asp are hireable over **x402** — agents included.  
+*This* machine is PoH-gated. An agent can knock; it cannot skip World. So for the drop, the human walks up, proves, and **pays on Sui**. Scalpers don't get a faster lane. Agents don't get a backdoor.
 
 ---
 
@@ -42,44 +57,34 @@ Remove either rail and “pay → dispense” is just a faster scalper.
 ```mermaid
 flowchart LR
   subgraph World["World"]
-    IDKit[IDKit / Agents]
-    Portal["developer.world.org<br/>/api/v4/verify"]
+    IDKit[IDKit]
+    Portal[verify]
   end
 
   subgraph Asp["Asp"]
-    Dapp["asp-dapp<br/>Get / Claim / v1"]
-    GW["asp-gateway<br/>policy + kiosk + x402"]
-    Dev["asp-devices<br/>Feather motor"]
+    Dapp["Get / Claim"]
+    GW[Gateway]
+    Dev[Motor]
   end
 
   subgraph Sui["Sui"]
-    PK["Payment Kit<br/>PaymentReceipt"]
-    Slush[Slush QR]
-    Fac["asp-sui-facilitator<br/>x402 gas"]
+    PK[Payment Kit]
+    X402[x402 hire]
   end
 
-  Human((Human)) --> IDKit
-  IDKit --> Dapp
-  Dapp --> Portal
-  Dapp --> GW
-  GW --> Portal
-  Human --> Slush
-  Slush --> PK
-  Dapp --> PK
-  GW --> PK
-  Agent((Agent)) --> GW
-  GW --> Fac
-  Fac --> Sui
-  GW -->|MQTT DISPENSE_ONCE| Dev
+  Human((Human)) --> IDKit --> Dapp --> GW
+  Human -->|Slush QR| PK --> GW
+  Agent((Agent)) -->|HTTP 402| X402 --> GW
+  GW -->|PoH ok + paid| Dev
 ```
 
 | Package | Job |
 |---|---|
-| [`asp-dapp`](asp-dapp) | Ticket UI, claim UI, World API routes, Payment Kit poll |
-| [`asp-gateway`](asp-gateway) | Winners + petitions, PoH authorize, kiosk complete, x402 hire |
-| [`asp-devices`](asp-devices) | ESP32 — one spin per authorized MQTT action |
-| [`asp-sui-facilitator`](asp-sui-facilitator) | Sponsored gas for x402 settlements |
-| [`@altaga/x402-sui`](https://www.npmjs.com/package/@altaga/x402-sui) | Exact Sui x402 client / server / facilitator schemes |
+| [`asp-dapp`](asp-dapp) | Ticket + claim UI · World verify · Slush QR poll |
+| [`asp-gateway`](asp-gateway) | Petitions · PoH gate · kiosk complete · x402 hire |
+| [`asp-devices`](asp-devices) | ESP32 — one spin per authorized action |
+| [`asp-sui-facilitator`](asp-sui-facilitator) | Sponsored gas when hire settles over x402 |
+| [`@altaga/x402-sui`](https://www.npmjs.com/package/@altaga/x402-sui) | Exact Sui x402 schemes |
 
 ---
 
@@ -114,16 +119,16 @@ flowchart LR
 
 <a id="world"></a>
 
-# Sponsor 1 — World (IDKit + Agents)
+# Sponsor 1 — World (IDKit)
 
 ### Why World is essential
 
-Without World, any hot wallet or agent key can claim. Fair scarce access dies.
+Without World, any hot wallet can claim. Fair scarce access dies.
 
-World is the **proportionate credential at the moment access changes**:
+World is the **zk credential that ties ticket → claim → same human**:
 
-- enroll (ticket) and claim (kiosk) both verify against World’s portal
-- agent-mediated purchase still requires a **live human** approval
+- enroll (ticket) binds a nullifier to `WIN-…`
+- claim re-verifies against World’s portal; nullifier must match
 - deny / cancel / fail ⇒ **no pay, no motor** (fail-closed)
 
 ### End-to-end World flow
@@ -286,13 +291,17 @@ Fresh staging token lives on the dapp; gateway receives a **preverified** author
 
 ### Why Sui is essential
 
-Without Sui, entitlement has nowhere honest to settle. The booth cannot wait on a real payment rail — only on a boolean the client invents.
+Asp is a machine economy. Settlement has to live on a chain the booth can wait on — not a `paid=true` checkbox.
 
-Sui gives Asp:
+Sui is that rail, two doors into the same gateway:
 
-- **Payment Kit + Slush QR** — phone pays USDC at the kiosk; PC waits for `PaymentReceipt`
-- **x402 hire + facilitator** — agent path with gas sponsorship
-- **PoH gate before settle / dispense** — `assertHireAllowed` runs *before* money moves into actuation
+| Door | Who | How |
+|---|---|---|
+| **x402 hire** | Agents / apps | `POST /asp/hire` → 402 challenge → facilitator gas → skill runs |
+| **Payment Kit** | Human at the booth | Slush QR → `PaymentReceipt` → kiosk complete → motor |
+
+Same policy gate on both: if the skill is PoH-locked, World must authorize first.  
+*This* capsule is locked. So the sexy demo you run live is **human + Slush on Sui** — while x402 stays lit as how machines get hired when the skill allows it.
 
 ### End-to-end Sui kiosk pay → motor
 
@@ -326,30 +335,6 @@ sequenceDiagram
   MQTT->>HW: DISPENSE_ONCE
   HW-->>GW: receipt
   GW-->>PC: ok + digest
-```
-
-### Parallel path — agent x402 hire
-
-```mermaid
-sequenceDiagram
-  autonumber
-  participant Agent
-  participant GW as asp-gateway
-  participant Fac as asp-sui-facilitator
-  participant Sui as Sui network
-  participant HW as Feather
-
-  Agent->>GW: POST /asp/petition
-  Note over Agent,GW: Human completes World PoH → authorized
-  Agent->>GW: POST /asp/hire (x402)
-  GW->>GW: assertHireAllowed (PoH + scope + unused)
-  alt unpaid
-    GW-->>Agent: 402 Payment Required
-    Agent->>Fac: settle / sponsor
-    Fac->>Sui: sponsored PTB
-  end
-  GW->>HW: MQTT dispense
-  GW-->>Agent: 200 + receipt
 ```
 
 ### Code — Slush deep link from Payment Kit URI
@@ -409,23 +394,23 @@ export async function lookupPaymentRecord({ nonce, amount, coinType, receiver, r
 }
 ```
 
-### Code — hire is PoH-gated before x402
+### Code — dispense is PoH-gated
 
 ```149:192:asp-gateway/src/services/policy/store.js
 export function assertHireAllowed({ skill, body, skipRequesterMatch = false }) {
   // …
   if (petition.status !== 'authorized') {
-    // pending_human / expired / revoked / denied → block hire & dispense
+    // pending_human / expired / revoked / denied → block dispense
 ```
 
-`POST /asp/hire` calls `assertHireAllowed` **before** the facilitator settles (`asp-gateway/src/services/x402/routes.js`).
+`POST /asp/kiosk/complete` calls `assertHireAllowed` **before** MQTT fires the motor.
 
 ### Sui deny paths
 
 | Signal | Meaning |
 |---|---|
-| `payment-not-found` (402) | QR not settled yet — keep polling |
-| `pending-human` | Tried to pay/hire before World authorize |
+| `payment-not-found` | QR not settled yet — keep polling |
+| `pending-human` | Tried to pay before World authorize |
 | `assertHireAllowed` fail | Scope / expiry / claim already used |
 | `esp32-no-receipt` (504) | Motor path timed out |
 | `lab-intent-no-dispense` | Lab QR never runs the motor |
@@ -441,8 +426,6 @@ export function assertHireAllowed({ skill, body, skipRequesterMatch = false }) {
 | [`asp-dapp/src/app/api/kiosk/complete+api.ts`](asp-dapp/src/app/api/kiosk/complete+api.ts) | Complete → gateway dispense |
 | [`asp-dapp/src/features/control/PayQr.tsx`](asp-dapp/src/features/control/PayQr.tsx) | QR UI |
 | [`asp-dapp/src/features/control/useCheckoutFlow.ts`](asp-dapp/src/features/control/useCheckoutFlow.ts) | Claim state machine |
-| [`asp-gateway/src/services/x402/routes.js`](asp-gateway/src/services/x402/routes.js) | `POST /asp/hire` + facilitator |
-| [`asp-sui-facilitator`](asp-sui-facilitator) | Gas sponsorship microservice |
 
 ---
 
@@ -474,8 +457,8 @@ stateDiagram-v2
 
 | Slot | Partner | What Asp proves in code |
 |---|---|---|
-| 1 | **World** | IDKit + Agents · portal verify · ticket/nullifier · authorize-preverified · deny paths |
-| 2 | **Sui** | Payment Kit / Slush settlement wait · x402 hire + facilitator · PoH before actuation |
+| 1 | **World** | Fairness switch — ticket↔nullifier · same human at claim · no PoH, no spin |
+| 2 | **Sui** | Money rail — x402 hire for machines · Payment Kit / Slush when the human pays the drop |
 
 ---
 
@@ -492,7 +475,7 @@ npm install && npm start
 ```
 
 Env templates: [`asp-dapp/.env.example`](asp-dapp/.env.example) (if present), [`asp-gateway/.env.example`](asp-gateway/.env.example).  
-Agents integrating over HTTP: [`AGENT.md`](./AGENT.md). Booth steps: [`SIMULATOR.md`](./SIMULATOR.md).
+Booth steps: [`SIMULATOR.md`](./SIMULATOR.md). Machine hire / x402 surface: [`AGENT.md`](./AGENT.md).
 
 ---
 
